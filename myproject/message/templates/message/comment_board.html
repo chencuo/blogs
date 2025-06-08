@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}留言板 - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/message.css' %}">
+
+{% endblock %}
+
+{% block content %}
+<div class="comment-board">
+    <!-- 花瓣飘落效果 -->
+    <div class="petals-container"></div>
+    
+    <!-- 留言板头部 -->
+    <div class="comment-header">
+        <h1><i class="fas fa-comment-alt"></i> 留言板</h1>
+        <div class="header-date">{{ now }}</div>
+    </div>
+    
+    <!-- 留言列表 -->
+    <div class="comment-list">
+        {% for comment in comments %}
+        <div class="comment-card {% if comment.pinned %}pinned{% endif %}">
+            <!-- 用户头像 -->
+            <div class="user-avatar" style="--avatar-color: {{ comment.avatar_color }};">
+                <!-- 使用Font Awesome图标替代文字 -->
+                <i class="fas fa-user avatar-icon"></i>
+                
+                <svg class="avatar-svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" fill="white"/>
+                    <path d="M20 20.5C20 19.1193 19.999 18 12 18C4.00104 18 4 19.1193 4 20.5V21C4 21.5523 4.44772 22 5 22H19C19.5523 22 20 21.5523 20 21V20.5Z" fill="white"/>
+                </svg>
+            </div>
+        
+            <!-- 留言内容 -->
+            <div class="comment-content">
+                <div class="comment-header-info">
+                    <div class="username-container">
+                        <span class="username">
+                            {{ comment.username }}
+                            {% if comment.is_admin %}<span class="admin-label">博主</span>{% endif %}
+                        </span>
+                        <div class="device-info">
+                            <span><i class="fas fa-mobile-alt"></i> {{ comment.device_type }}</span>
+                            <span><i class="fas fa-globe"></i> {{ comment.browser_type }}</span>
+                        </div>
+                    </div>
+                    <div class="comment-time">{{ comment.created_at|date:"Y-m-d H:i" }}</div>
+                </div>
+                
+                <div class="region-info"><i class="fas fa-map-marker-alt"></i> 来自{{ comment.region }}</div>
+                
+                <div class="comment-text">
+                    {{ comment.content|linebreaks }}
+                </div>
+                
+                {% if comment.reply %}
+                <div class="admin-reply">
+                    <div class="reply-header">
+                        <i class="fas fa-shield-alt"></i> <strong>管理员回复</strong>
+                    </div>
+                    <div class="reply-text">
+                        {{ comment.reply|linebreaks }}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- 留言底部操作 -->
+                <div class="comment-actions">
+                    <button class="action-btn pin-btn {% if comment.pinned %}pinned{% endif %}" 
+                            data-comment-id="{{ comment.id }}">
+                        <i class="fas fa-thumbtack"></i> 置顶
+                    </button>
+                    <button class="action-btn reply-btn" data-comment-id="{{ comment.id }}">
+                        <i class="fas fa-reply"></i> 回复
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="comment-card" style="text-align: center; padding: 40px;">
+            <i class="fas fa-comment-slash fa-3x" style="color: #ccc;"></i>
+            <h3 style="margin-top: 20px;">暂无留言</h3>
+            <p style="color: #95a5a6;">成为第一个留言的人吧！</p>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- 留言表单 -->
+    <div class="comment-form-container">
+        <div class="form-header">
+            <i class="fas fa-paper-plane"></i> <h2>发送留言</h2>
+        </div>
+        
+        {% if submission_success %}
+        <div class="success-message">
+            <i class="fas fa-check-circle"></i> 留言已提交成功，等待管理员审核！
+        </div>
+        {% endif %}
+        
+        <form method="post" id="commentForm">
+            {% csrf_token %}
+            
+            <!-- 修正后的表单行 -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">用户名</label>
+                    {{ form.username }}
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">邮箱</label>
+                    {{ form.email }}
+                </div>
+                
+                <div class="form-group form-group-serial">
+                    <label class="form-label">序号</label>
+                    <div class="serial-display">{{ comment_count }}</div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">评论内容</label>
+                {{ form.content }}
+            </div>
+            
+            <div class="form-footer">
+                <div class="form-options">
+                    <div class="form-option">
+                        <input type="checkbox" id="markdown" name="markdown" checked>
+                        <label for="markdown">Markdown</label>
+                    </div>
+                    <div class="form-option">
+                        <input type="checkbox" id="email_notify" name="email_notify" checked>
+                        <label for="email_notify">邮件提醒</label>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <div class="ai-assistant" title="AI助手">AI</div>
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-paper-plane"></i> 发送
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// 花瓣飘落效果
+function createPetals() {
+    const container = document.querySelector('.petals-container');
+    const petalCount = 15;
+    
+    for (let i = 0; i < petalCount; i++) {
+        const petal = document.createElement('div');
+        petal.classList.add('petal');
+        
+        // 随机位置
+        const startLeft = Math.random() * 100;
+        petal.style.left = `${startLeft}%`;
+        
+        // 随机大小
+        const size = Math.random() * 20 + 20;
+        petal.style.width = `${size}px`;
+        petal.style.height = `${size}px`;
+        
+        // 随机动画
+        const duration = Math.random() * 10 + 10;
+        petal.style.animationDuration = `${duration}s`;
+        
+        // 随机延迟
+        const delay = Math.random() * 5;
+        petal.style.animationDelay = `${delay}s`;
+        
+        // 随机透明度
+        const opacity = Math.random() * 0.5 + 0.3;
+        petal.style.opacity = opacity;
+        
+        document.querySelector('.petals-container').appendChild(petal);
+    }
+}
+
+// 置顶功能
+document.querySelectorAll('.pin-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const commentId = this.dataset.commentId;
+        const isPinned = this.classList.contains('pinned');
+        
+        // 发送AJAX请求
+        fetch(`/message/admin/${commentId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: `action=toggle_pin&pinned=${!isPinned}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                this.classList.toggle('pinned');
+                // 如果需要，可以刷新页面或更新UI
+                location.reload();
+            }
+        });
+    });
+});
+
+// 回复功能
+document.querySelectorAll('.reply-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        const commentId = this.dataset.commentId;
+        const replyText = prompt('请输入回复内容:');
+        
+        if (replyText !== null && replyText.trim() !== '') {
+            // 发送AJAX请求
+            fetch(`/message/admin/${commentId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: `action=add_reply&reply=${encodeURIComponent(replyText)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 刷新页面显示回复
+                    location.reload();
+                }
+            });
+        }
+    });
+});
+
+// 页面加载时创建花瓣
+document.addEventListener('DOMContentLoaded', createPetals);
+
+// 获取CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

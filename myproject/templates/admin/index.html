@@ -1,0 +1,726 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+/* 专业后台UI设计 */
+:root {
+    --primary: {{ ADMIN_INTERFACE_THEME.css_header_background_color|default:"#4361ee" }};
+    --primary-dark: #7a718d;
+    --primary-light: #4895ef;
+    --secondary: #f72585;
+    --success: #4cc9f0;
+    --warning: #f8961e;
+    --sidebar-bg: {{ ADMIN_INTERFACE_THEME.css_sidebar_background_color|default:"#006400" }};
+    --sidebar-text: {{ ADMIN_INTERFACE_THEME.css_sidebar_text_color|default:"#ffffff" }};
+    --body-bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --text-dark: #212529;
+    --text-light: #6c757d;
+    --border: #dee2e6;
+    --card-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* 整体布局 */
+.admin-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--body-bg);
+}
+
+/* 侧边栏样式 */
+.admin-sidebar {
+    width: 260px;
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 6px -1px rgba(66, 17, 32, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    z-index: 10;
+}
+
+.admin-sidebar,
+.admin-sidebar a,
+.admin-sidebar .nav-item,
+.admin-sidebar .nav-item span,
+.admin-sidebar .logo-text,
+.admin-sidebar .nav-title {
+    color: #ffffff !important;
+}
+
+.sidebar-header {
+    padding: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-container img {
+    height: 40px;
+}
+
+.logo-text {
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+}
+
+.sidebar-nav {
+    flex-grow: 1;
+    padding: 15px 0;
+}
+
+.nav-section {
+    margin-bottom: 20px;
+}
+
+.nav-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 10px 24px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 5px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 24px;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-weight: 500;
+    border-left: 3px solid transparent;
+    transition: all 0.3s;
+}
+
+.nav-item:hover, .nav-item.active {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-left-color: var(--primary-light);
+}
+
+.nav-item i {
+    width: 24px;
+    text-align: center;
+    margin-right: 12px;
+    font-size: 18px;
+}
+
+.sidebar-footer {
+    padding: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+}
+
+/* 主内容区域 */
+.admin-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+/* 顶部导航栏 */
+.admin-topbar {
+    background: white;
+    padding: 0 30px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    position: sticky;
+    top: 0;
+    z-index: 9;
+}
+
+.topbar-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.search-box {
+    background: #f1f3f5;
+    border-radius: 50px;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.search-box input {
+    background: transparent;
+    border: none;
+    width: 200px;
+    font-size: 15px;
+}
+
+.search-box input:focus {
+    outline: none;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.user-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.user-name {
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+/* 主内容区 */
+.dashboard {
+    padding: 30px;
+    flex-grow: 1;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 14px;
+    padding: 25px;
+    box-shadow: var(--card-shadow);
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.card-1 {
+    border-top: 4px solid var(--primary);
+}
+
+.card-2 {
+    border-top: 4px solid var(--warning);
+}
+
+.card-3 {
+    border-top: 4px solid var(--success);
+}
+
+.card-6 {
+    border-top: 4px solid #09b777;
+}
+
+.card-icon {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.card-1 .card-icon {
+    background: rgba(67, 97, 238, 0.15);
+    color: var(--primary);
+}
+
+.card-2 .card-icon {
+    background: rgba(248, 150, 30, 0.15);
+    color: var(--warning);
+}
+
+.card-3 .card-icon {
+    background: rgba(76, 201, 240, 0.15);
+    color: var(--success);
+}
+
+.card-6 .card-icon {
+    background: rgba(9, 183, 119, 0.15);
+    color: #09b777;
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+.stat-title {
+    font-size: 16px;
+    color: var(--text-light);
+    margin-bottom: 10px;
+}
+
+.stat-info {
+    font-size: 14px;
+    color: #343a40;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stat-info i {
+    min-width: 18px;
+    text-align: center;
+}
+
+.card-btn {
+    display: inline-flex;
+    align-items: center;
+    background: var(--primary-light);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.3s;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.card-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+/* 系统信息卡片 */
+.system-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.info-card {
+    background: white;
+    border-radius: 14px;
+    padding: 25px;
+    box-shadow: var(--card-shadow);
+}
+
+.info-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.info-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.info-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.info-content li {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.info-content li:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    color: var(--text-light);
+}
+
+.info-value {
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+/* 新增卡片颜色 */
+.card-4 { border-top: 4px solid #f72585; }
+.card-5 { border-top: 4px solid #a30c34; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <!-- 侧边导航 -->
+    <div class="admin-sidebar">
+        <div class="sidebar-header">
+            <div class="logo-container">
+                <div class="logo-icon">📚</div>
+                <div class="logo-text">博客管理系统</div>
+            </div>
+        </div>
+        
+        <div class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-title">核心导航</div>
+                <a href="/admin/" class="nav-item active">
+                    <i class="fas fa-home"></i>
+                    <span>仪表盘</span>
+                </a>
+            </div>
+         <!-- 新增：文章管理部分 -->
+            <div class="nav-section">
+                <div class="nav-title">内容管理</div>
+                <a href="/admin/articles/article/" class="nav-item">
+                    <i class="fas fa-newspaper"></i>
+                    <span>文章管理</span>
+                </a>
+                <a href="/admin/articles/article/add/" class="nav-item">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>添加新文章</span>
+                </a>
+                <a href="/admin/articles/article/?is_published__exact=0" class="nav-item">
+                    <i class="fas fa-edit"></i>
+                    <span>草稿文章</span>
+                </a>
+            </div>
+            <!-- 新增：娱乐管理模块 -->
+            <div class="nav-section nav-section-entertainment">
+                <div class="nav-title">娱乐管理</div>
+                
+                <!-- 生活日记管理 -->
+                <a href="/admin/diary/diary/" class="nav-item">
+                    <i class="fas fa-book-open"></i>
+                    <span>生活日记管理</span>
+                </a>
+                <a href="/admin/diary/diary/add/" class="nav-item">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>添加新日记</span>
+                </a>
+                
+                <!-- 友链管理 -->
+                <a href="/admin/links/friendlink/" class="nav-item">
+                    <i class="fas fa-link"></i>
+                    <span>友链管理</span>
+                </a>
+                <a href="/admin/links/friendlink/add/" class="nav-item">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>添加友链</span>
+                </a>
+                <a href="/admin/links/friendlink/?is_active__exact=0" class="nav-item">
+                    <i class="fas fa-unlink"></i>
+                    <span>未激活友链</span>
+                </a>
+                
+                <!-- 留言板管理 -->
+                <a href="/admin/message/comment/" class="nav-item">
+                    <i class="fas fa-comments"></i>
+                    <span>留言管理</span>
+                </a>
+                <a href="/admin/message/comment/?status__exact=pending" class="nav-item">
+                    <i class="fas fa-clock"></i>
+                    <span>待审留言</span>
+                </a>
+                <a href="/admin/message/comment/?status__exact=rejected" class="nav-item">
+                    <i class="fas fa-ban"></i>
+                    <span>已退回留言</span>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-title">用户管理</div>
+                <a href="/admin/auth/user/" class="nav-item">
+                    <i class="fas fa-users"></i>
+                    <span>用户管理</span>
+                </a>
+                <a href="/admin/auth/group/" class="nav-item">
+                    <i class="fas fa-user-tag"></i>
+                    <span>用户组管理</span>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-title">主题管理</div>
+                <a href="/admin/admin_interface/theme/" class="nav-item">
+                    <i class="fas fa-palette"></i>
+                    <span>主题管理</span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="sidebar-footer">
+            &copy; {% now "Y" %} 博客管理系统 v1.0
+        </div>
+    </div>
+    
+    <!-- 主内容区 -->
+    <div class="admin-content">
+        <!-- 顶部导航栏 -->
+        <div class="admin-topbar">
+            <h1 class="topbar-title">系统仪表盘</h1>
+            
+            <div class="topbar-right">
+                <div class="search-box">
+                    <i class="fas fa-search text-muted"></i>
+                    <input type="text" placeholder="搜索...">
+                </div>
+                
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-name">{{ request.user.username }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 仪表盘内容 -->
+        <div class="dashboard">
+            <!-- 数据统计卡片 -->
+            <div class="stats-grid">
+                <!-- 用户统计卡 -->
+                <div class="stat-card card-1">
+                    <div class="card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-value">{{ users_total }}</div>
+                    <div class="stat-title">系统用户总数</div>
+                    <div class="stat-info">
+                        <i class="fas fa-arrow-up"></i> 30天内新增: {{ users_new }} 个用户
+                    </div>
+                    <a href="/admin/auth/user/add/" class="card-btn">
+                        <i class="fas fa-plus"></i> 添加用户
+                    </a>
+                </div>
+                
+                <!-- 用户组统计卡 -->
+                <div class="stat-card card-2">
+                    <div class="card-icon">
+                        <i class="fas fa-user-tag"></i>
+                    </div>
+                    <div class="stat-value">{{ groups_total }}</div>
+                    <div class="stat-title">用户组数量</div>
+                    <div class="stat-info">
+                        <i class="fas fa-tag"></i> 管理用户权限
+                    </div>
+                    <a href="/admin/auth/group/add/" class="card-btn">
+                        <i class="fas fa-plus"></i> 添加用户组
+                    </a>
+                </div>
+                
+                <!-- 主题统计卡 -->
+                <div class="stat-card card-3">
+                    <div class="card-icon">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <div class="stat-value">{{ themes_total }}</div>
+                    <div class="stat-title">系统主题数量</div>
+                    <div class="stat-info">
+                        <i class="fas fa-paint-brush"></i> 定制系统外观
+                    </div>
+                    <a href="/admin/admin_interface/theme/add/" class="card-btn">
+                        <i class="fas fa-plus"></i> 新建主题
+                    </a>
+                </div>
+                <!-- 新增：文章统计卡 -->
+                <div class="stat-card card-4">
+                    <div class="card-icon" style="background: rgba(247, 37, 133, 0.15); color: #f72585;">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="stat-value">{{ articles_total }}</div>
+                    <div class="stat-title">文章总数</div>
+                    <div class="stat-info">
+                        <i class="fas fa-book-open"></i> 已发布: {{ articles_published }}篇
+                    </div>
+                    <div class="stat-info">
+                        <i class="fas fa-file-alt"></i> 草稿: {{ articles_draft }}篇
+                    </div>
+                    <a href="/admin/articles/article/add/" class="card-btn" style="background: #f72585;">
+                        <i class="fas fa-plus"></i> 添加文章
+                    </a>
+                </div>
+                <!-- 新增：友链统计卡片 -->
+                <div class="stat-card card-4">
+                    <div class="card-icon" style="background: rgba(247, 37, 133, 0.15); color: #f72585;">
+                        <i class="fas fa-link"></i>
+                    </div>
+                    <div class="stat-value">{{ links_total }}</div>
+                    <div class="stat-title">友情链接</div>
+                    <div class="stat-info">
+                        <i class="fas fa-history"></i> 最后更新: {{ links_last_updated|date:"Y-m-d" }}
+                    </div>
+                    <div class="stat-info">
+                        <i class="fas fa-list"></i> 友链总数: {{ links_total }}
+                    </div>
+
+                    <a href="/admin/links/friendlink/" class="card-btn" style="background: #f72585;">
+                        <i class="fas fa-cog"></i> 管理友链
+                    </a>
+                </div>
+                
+                <!-- 新增：留言板统计卡片 -->
+                <div class="stat-card card-5">
+                    <div class="card-icon" style="background: rgba(163, 12, 130, 0.15); color: #f72585;">
+                        <i class="fas fa-comment-alt"></i>
+                    </div>
+                    <div class="stat-value">{{ comments_total }}</div>
+                    <div class="stat-title">留言总数</div>
+                    <div class="stat-info">
+                        <i class="fas fa-check-circle"></i> 已通过: {{ comments_approved }}
+                    </div>
+                    <div class="stat-info">
+                        <i class="fas fa-clock"></i> 待审核: {{ comments_pending }}
+                    </div>
+                    <a href="/admin/message/comment/" class="card-btn" style="background:#f72585;">
+                        <i class="fas fa-list"></i> 管理留言
+                    </a>
+                </div>
+                
+                <!-- 新增：生活日记统计卡片 -->
+                <div class="stat-card card-6">
+                    <div class="card-icon" style="background: rgba(9, 183, 119, 0.15); color: #09b777;">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="stat-value">{{ diaries_total }}</div>
+                    <div class="stat-title">生活日记总数</div>
+                    <div class="stat-info">
+                        <i class="fas fa-calendar"></i> 本月新增: {{ diaries_monthly }}篇
+                    </div>
+                    <div class="stat-info">
+                        <i class="fas fa-pen"></i> 作者数量: {{ diaries_authors }}人
+                    </div>
+                    <a href="/admin/diary/diary/add/" class="card-btn" style="background: #09b777;">
+                        <i class="fas fa-plus"></i> 添加日记
+                    </a>
+                </div>
+            </div>
+            
+            <!-- 系统信息卡 -->
+            <div class="system-info">
+                <div class="info-card">
+                    <div class="info-header">
+                        <h3 class="info-title">系统状态</h3>
+                        <i class="fas fa-server text-primary"></i>
+                    </div>
+                    <div class="info-content">
+                        <ul>
+                            <li>
+                                <span class="info-label">Django版本</span>
+                                <span class="info-value">3.2.18</span>
+                            </li>
+                            <li>
+                                <span class="info-label">运行环境</span>
+                                <span class="info-value">Development</span>
+                            </li>
+                            <li>
+                                <span class="info-label">数据库</span>
+                                <span class="info-value">SQLite</span>
+                            </li>
+                            <li>
+                                <span class="info-label">系统状态</span>
+                                <span class="info-value text-success">运行正常</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="info-header">
+                        <h3 class="info-title">当前主题</h3>
+                        <i class="fas fa-palette text-warning"></i>
+                    </div>
+                    <div class="info-content">
+                        <ul>
+                            <li>
+                                <span class="info-label">主题名称</span>
+                                <span class="info-value">{{ ADMIN_INTERFACE_THEME.name }}</span>
+                            </li>
+                            <li>
+                                <span class="info-label">主色调</span>
+                                <span class="info-value">#{{ ADMIN_INTERFACE_THEME.css_header_background_color|slice:"1:7" }}</span>
+                            </li>
+                            <li>
+                                <span class="info-label">侧边栏</span>
+                                <span class="info-value">#{{ ADMIN_INTERFACE_THEME.css_sidebar_background_color|slice:"1:7" }}</span>
+                            </li>
+                            <li>
+                                <span class="info-label">最后更新</span>
+                                <span class="info-value">{% now "Y-m-d" %}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 激活当前菜单项
+    const currentPath = window.location.pathname;
+    const navItems = document.querySelectorAll('.nav-item');
+    
+    navItems.forEach(item => {
+        const href = item.getAttribute('href');
+        if (currentPath === href) {
+            item.classList.add('active');
+        }
+    });
+    
+    // 仪表盘导航项特殊处理
+    if (currentPath === '/admin/') {
+        document.querySelector('.nav-item[href="/admin/"]').classList.add('active');
+    }
+    
+    // 添加标题动画
+    const title = document.querySelector('.title');
+    if (title) {
+        setTimeout(() => {
+            title.classList.add('animate__animated', 'animate__fadeInDown');
+        }, 300);
+    }
+});
+</script>
+{% endblock %}

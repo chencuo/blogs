@@ -1,0 +1,750 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}陈错的web{% endblock %}</title>
+    
+    <!-- Bootstrap 3.4.1 CSS -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- 自定义CSS -->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- JavaScript 文件 -->
+    <script src="{% static 'js/jquery-1.12.4.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+     <!-- 新增流星层 -->
+    <div class="shooting-stars" id="shootingStars"></div>
+    
+    <!-- 全屏背景容器 -->
+    <div id="fullscreen-bg">
+        <!-- 图片由JS动态设置 -->
+    </div>
+    <!-- 背景遮罩层 -->
+    <div class="bg-overlay"></div>
+    
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="sr-only">导航菜单</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="{% url 'home' %}">cuo's blog</a>
+            </div>
+            
+            <div class="collapse navbar-collapse" id="navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <!-- 增加间距类 nav-spaced-item -->
+                    <li class="nav-spaced-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                        <a href="{% url 'home' %}">首页</a>
+                    </li>
+                    <li class="nav-spaced-item {% if request.resolver_match.app_name == 'articles' %}active{% endif %}">
+                        <a href="{% url 'articles:index' %}">文章</a>
+                    </li>
+                    <li class="nav-spaced-item {% if request.resolver_match.app_name == 'links' %}active{% endif %}">
+                        <a href="{% url 'links:index' %}">友链</a>
+                    </li>
+                    <li class="nav-spaced-item {% if request.resolver_match.app_name == 'message' %}active{% endif %}">
+                        <a href="{% url 'message:comment_board' %}">留言板</a>
+                    </li>
+                    <li class="nav-spaced-item {% if request.resolver_match.app_name == 'diary' %}active{% endif %}">
+                        <a href="{% url 'diary:diary_list' %}">生活日记</a>
+                    </li>
+                    <li class="nav-spaced-item {% if request.resolver_match.app_name == 'about' %}active{% endif %}">
+                        <a href="{% url 'about:index' %}">关于</a>
+                    </li>
+                </ul>
+                
+                <!-- 搜索框移至最右边 -->
+                <div class="navbar-form navbar-search-wrapper search-right">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="搜索内容...">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default search-btn" type="button">
+                                <i class="glyphicon glyphicon-search"></i>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- 主内容区 -->
+    <div class="container main-container">
+        <div class="content-area">
+            <!-- 左侧边栏 - 多个独立卡片 -->
+            <div class="sidebar-column">
+                <!-- 公告卡片 -->
+                <div class="sidebar-card announcement-card">
+                    <div class="card-header">
+                        <i class="fas fa-bullhorn"></i> 公告
+                    </div>
+                    <div class="announcement-content">
+                        高冷大帝陈错错
+                    </div>
+                </div>
+                
+                <!-- 心情卡片 -->
+                <div class="sidebar-card mood-card">
+                    <div class="card-header">
+                        <i class="fas fa-smile"></i> 心情
+                    </div>
+                    <div class="mood-content">
+                        不以物喜，不以己悲
+                    </div>
+                </div>
+                <!-- 站点概览卡片 -->
+                <div class="sidebar-card profile-card">
+                    <div class="user-info">
+                        <div class="avatar">
+                            <img src="{% static 'img/default-avatar.jpg' %}" alt="用户头像" width="100%" height="100%" style="border-radius: 50%;">
+                        </div>
+                        <div class="user-details">
+                            <div class="username">cuo</div>
+                            <div class="role">社畜大二学生</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 统计区域 -->
+                    <div class="stats-grid">
+                        <!-- 文章统计 -->
+                        <a href="{{ articles_url }}" class="stat-item stat-link">
+                            <div class="stat-value">{{ articles_total }}</div>
+                            <div class="stat-label">文章</div>
+                        </a>
+                        
+                        <!-- 友情链接统计 -->
+                        <a href="{{ friendlinks_url }}" class="stat-item stat-link">
+                            <div class="stat-value">{{ links_total }}</div>
+                            <div class="stat-label">友链</div>
+                        </a>
+                        
+                        <!-- 留言板统计 -->
+                        <a href="{% url 'message:comment_board' %}" class="stat-item stat-link">
+                            <div class="stat-value">{{ comments_total }}</div>
+                            <div class="stat-label">留言板</div>
+                        </a>
+                    </div>
+                    
+                    <!-- 社交链接 -->
+                    <div class="social-links">
+                        <a href="https://github.com/zxh201032" class="social-link">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="https://m.youtube.com/channel/UC_QW3r8i7LD7lYaAJOAy80g" class="social-link">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                        <a href="https://music.163.com/#/playlist?id=12326820404" class="social-link">
+                            <i class="fas fa-music"></i>
+                        </a>
+                        <a href="https://im.qq.com/index/" class="social-link">
+                            <i class="fab fa-qq"></i>
+                        </a>
+                    </div>
+                </div>
+                <!-- 导航菜单卡片 -->
+                <div class="sidebar-card nav-card">
+                    <div class="nav-menu">
+                        <a href="{% url 'home' %}" class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                            <i class="fas fa-home"></i> 首页
+                        </a>
+                        <a href="{% url 'about:index' %}" class="nav-item">
+                            <i class="fas fa-archive"></i> 关于
+                        </a>
+                        <a href="{% url 'diary:diary_list' %}" class="nav-item {% if request.resolver_match.app_name == 'diary' %}active{% endif %}">
+                            <i class="fas fa-film"></i> 生活日记
+                        </a>
+                        <a href="https://www.chencuo.top/" class="nav-item">
+                            <i class="fas fa-globe"></i> 我的主站
+                        </a>
+                    </div>
+                    
+                    <!-- 搜索框 -->
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="搜索...">
+                    </div>
+                </div>
+
+            </div>
+            
+            <!-- 右侧内容区域 -->
+            <div class="main-content-column">
+                <!-- 添加半透明内容盒子 -->
+                <div class="content-box">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="footer">
+        <div class="container">
+            <!-- 页脚信息容器 -->
+            <div class="footer-info-container">
+                <!-- 备案信息 -->
+                <div class="github-badge-big">
+                    <span class="badge-subject">
+                        <i class="glyphicon glyphicon-id-card"></i> 备案号
+                    </span>
+                    <span class="badge-value bg-orange">
+                        <a href="https://beian.mps.gov.cn/#/query/webSearch" target="_blank">
+                            鄂公网安备42282502001030号
+                        </a>|
+                        <a href="https://beian.miit.gov.cn" target="_blank">
+                            鄂ICP备2024067530号-1
+                        </a>
+                    </span>
+                </div>
+                
+                <!-- CDN信息 -->
+                <div class="github-badge-big">
+                    <span class="badge-subject">
+                        <i class="glyphicon glyphicon-cloud"></i> CDN
+                    </span>
+                    <span class="badge-value bg-shallots">
+                        <a href="https://www.upyun.com/" target="_blank">Upyun</a>
+                    </span>
+                    
+                    <span class="badge-subject">
+                        <i class="glyphicon glyphicon-console"></i> Powered
+                    </span>
+                    <span class="badge-value bg-green">
+                        <a href="https://cn.wordpress.org/" target="_blank">WordPress</a>
+                    </span>
+                </div>
+                
+                <!-- 版权信息 -->
+                <div class="github-badge-big">
+                    <span class="badge-subject">
+                        <i class="glyphicon glyphicon-copyright-mark"></i> Copyright 
+                    </span>
+                    <span class="badge-value bg-red">2024-2025 
+                        <a href="http://www.chencuo.top/" target="_blank">@ cuo</a>
+                    </span>
+                </div>
+                
+                <!-- 运行时间统计 -->
+                <div class="github-badge-big">
+                    <span class="badge-subject">
+                        <i class="glyphicon glyphicon-time"></i> Running Time
+                    </span>
+                    <span class="badge-value bg-apricots">
+                        <span id="blog_running_days" class="odometer"></span> days
+                        <span id="blog_running_hours" class="odometer"></span> H
+                        <span id="blog_running_mins" class="odometer"></span> M
+                        <span id="blog_running_secs" class="odometer"></span> S
+                    </span>
+                </div>
+                
+                <!-- 版权声明 -->
+                <div class="copyright-notice">
+                    <span>Copyright ©2024 版权所有 陈错大帝୧(๑•̀⌄•́๑)૭</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- 运行时间统计脚本 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const daysSpan = document.getElementById('blog_running_days');
+            const hoursSpan = document.getElementById('blog_running_hours');
+            const minsSpan = document.getElementById('blog_running_mins');
+            const secsSpan = document.getElementById('blog_running_secs');
+            
+            // 更新运行时间的函数
+            function updateRunningTime() {
+                // 计算当前时间与设置时间的差值
+                const siteStartDate = new Date(2024, 6, 30, 0, 0, 0); // 月份是从0开始的(0=1月, 所以6=7月)
+                const now = new Date();
+                const timeDiff = now - siteStartDate;
+                
+                // 计算天、时、分、秒
+                const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+                
+                // 更新页面元素
+                daysSpan.textContent = days;
+                hoursSpan.textContent = hours;
+                minsSpan.textContent = minutes;
+                secsSpan.textContent = seconds;
+            }
+            
+            // 初始化并设置定时器
+            updateRunningTime();
+            setInterval(updateRunningTime, 1000);
+        });
+    </script>
+    
+    <!-- JavaScript 文件 -->
+    <script src="{% static 'js/jquery-1.12.4.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    
+    <!-- 背景图片切换脚本 -->
+    <script>
+        $(document).ready(function() {
+            // 背景图片集合
+            const backgrounds = [
+                "{% static 'img/backgrounds/01.webp' %}",
+                // "{% static 'img/backgrounds/02.webp' %}",
+                "{% static 'img/backgrounds/03.webp' %}",
+                "{% static 'img/backgrounds/04.webp' %}",
+                "{% static 'img/backgrounds/05.webp' %}",
+                "{% static 'img/backgrounds/06.webp' %}",
+                "{% static 'img/backgrounds/07.webp' %}",
+                "{% static 'img/backgrounds/08.webp' %}"
+            ];
+            
+            // 检查是否支持sessionStorage
+            const useSessionStorage = typeof(Storage) !== "undefined";
+            
+            let currentBgIndex;
+            
+            if (useSessionStorage) {
+                // 获取当前背景索引或设置初始值
+                const savedBgIndex = sessionStorage.getItem('bgIndex');
+                
+                if (savedBgIndex !== null) {
+                    currentBgIndex = parseInt(savedBgIndex);
+                } else {
+                    currentBgIndex = 0;
+                    sessionStorage.setItem('bgIndex', currentBgIndex);
+                }
+                
+                // 更新索引为下一张图片
+                const nextBgIndex = (currentBgIndex + 1) % backgrounds.length;
+                sessionStorage.setItem('bgIndex', nextBgIndex);
+            } else {
+                // 不支持sessionStorage时使用随机数
+                currentBgIndex = Math.floor(Math.random() * backgrounds.length);
+            }
+            
+            // 设置背景图片
+            $("#fullscreen-bg").css({
+                "background-image": `url(${backgrounds[currentBgIndex]})`,
+                "background-size": "cover",
+                "background-position": "center center",
+                "background-repeat": "no-repeat"
+            });
+        });
+    </script>
+    
+    <!-- 添加侧边栏交互功能 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 导航菜单项点击事件
+            const navItems = document.querySelectorAll('.nav-item:not([href]), .nav-item[href="#"]');
+            navItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    // 对于非链接项，阻止默认行为
+                    if (!this.href || this.href === "#") {
+                        e.preventDefault();
+                    }
+                     // 移除所有活动状态
+                    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                    // 为当前项添加活动状态
+                    this.classList.add('active');
+                });
+            });
+            
+            // 搜索框回车事件
+            const searchBox = document.querySelector('.search-box input');
+            searchBox.addEventListener('keypress', function(e) {
+                if(e.key === 'Enter') {
+                    const searchTerm = this.value.trim();
+                    if (searchTerm) {
+                        alert(`小笨蛋，左侧搜素需要点击下方确定哦~~~`);
+                        // 实际项目中这里可以触发搜索请求
+                        // window.location.href = `/search/?q=${encodeURIComponent(searchTerm)}`;
+                    }
+                }
+            });
+        });
+    </script>
+
+<script>
+    // 搜索功能实现
+    document.addEventListener('DOMContentLoaded', function() {
+            // 触发真实搜索
+    function triggerSearch() {
+        const query = globalSearchInput.value.trim();
+        if (!query) {
+            showErrorMessage('请输入搜索关键词');
+            return;
+        }
+        
+        // 显示加载状态
+        searchResultsContainer.innerHTML = `
+            <div class="search-message">
+                <div class="loader-spinner"></div>
+                <p>正在搜索: ${query}</p>
+            </div>
+        `;
+        
+        // 隐藏错误消息
+        hideErrorMessage();
+        
+        // 发送AJAX请求到后端搜索接口
+        fetch(`/search/?q=${encodeURIComponent(query)}`)
+            .then(response => {
+                // 确保响应是JSON类型
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    return response.text().then(text => {
+                        throw new Error(`无效响应: ${text.slice(0, 100)}...`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'error') {
+                    throw new Error(data.message);
+                }
+                displayResults(data.results, query);
+            })
+            .catch(error => {
+                console.error('Search error:', error);
+                showErrorMessage(`搜索失败: ${error.message || '未知错误'}`);
+                searchResultsContainer.innerHTML = `
+                    <div class="search-message">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>搜索出现错误</p>
+                    </div>
+                `;
+            });
+    }
+    
+    // 显示错误消息
+    function showErrorMessage(message) {
+        const errorElement = document.getElementById('errorMessage');
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+    }
+    
+    // 隐藏错误消息
+    function hideErrorMessage() {
+        const errorElement = document.getElementById('errorMessage');
+        errorElement.style.display = 'none';
+    }
+    
+        const searchModal = document.getElementById('searchModal');
+        const globalSearchInput = document.getElementById('globalSearchInput');
+        const closeSearchModal = document.getElementById('closeSearchModal');
+        const searchResultsContainer = document.getElementById('searchResults');
+        
+        // 绑定所有搜索框事件
+        bindSearchEvents();
+        
+        function bindSearchEvents() {
+            // 导航栏搜索框
+            const navbarSearchInput = document.querySelector('.navbar-search-wrapper input');
+            const navbarSearchButton = document.querySelector('.navbar-search-wrapper .search-btn');
+            
+            // 侧边栏搜索框
+            const sidebarSearchInput = document.querySelector('.sidebar-card .search-box input');
+            
+            // 导航栏搜索按钮
+            if (navbarSearchButton) {
+                navbarSearchButton.addEventListener('click', function() {
+                    openSearchModal();
+                    if (navbarSearchInput.value.trim()) {
+                        globalSearchInput.value = navbarSearchInput.value.trim();
+                        triggerSearch();
+                    }
+                });
+            }
+            
+            // 导航栏搜索输入框回车
+            if (navbarSearchInput) {
+                navbarSearchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        openSearchModal();
+                        globalSearchInput.value = this.value.trim();
+                        triggerSearch();
+                    }
+                });
+            }
+            
+            // 侧边栏搜索输入框回车
+            if (sidebarSearchInput) {
+                sidebarSearchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        openSearchModal();
+                        globalSearchInput.value = this.value.trim();
+                        triggerSearch();
+                    }
+                });
+            }
+        }
+        
+        // 打开搜索模态框（居中显示）
+        function openSearchModal() {
+            searchModal.style.display = 'flex';
+            setTimeout(() => {
+                searchModal.classList.add('show');
+                globalSearchInput.focus();
+                // 清空搜索结果
+                searchResultsContainer.innerHTML = `
+                    <div class="search-message">
+                        <i class="fas fa-search"></i>
+                        <p>输入标题关键词后按回车搜索</p>
+                    </div>
+                `;
+            }, 10);
+        }
+        
+        // 关闭搜索模态框
+        function closeSearchModalFunc() {
+
+            // 添加关闭动画类
+            searchModal.classList.add('closing');
+    
+            // 在动画结束后隐藏模态框
+            setTimeout(() => {
+                searchModal.classList.remove('show', 'closing');
+                searchModal.style.display = 'none';
+                globalSearchInput.value = '';
+            }, 400); // 与动画时间保持一致
+        }
+        // 触发真实搜索
+        function triggerSearch() {
+            const query = globalSearchInput.value.trim();
+            if (!query) {
+                searchResultsContainer.innerHTML = `
+                    <div class="search-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>请输入搜索关键词</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // 显示加载状态
+            searchResultsContainer.innerHTML = `
+                <div class="search-message">
+                    <div class="loader-spinner"></div>
+                    <p>正在搜索: ${query}</p>
+                </div>
+            `;
+            
+            // 发送AJAX请求到后端搜索接口
+            fetch(`/search/?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    displayResults(data.results, query);
+                })
+                .catch(error => {
+                    searchResultsContainer.innerHTML = `
+                        <div class="search-message">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>搜索失败: ${error.message}</p>
+                        </div>
+                    `;
+                });
+        }
+        
+        // 显示真实搜索结果
+        function displayResults(results, query) {
+            if (!results || results.length === 0) {
+                searchResultsContainer.innerHTML = `
+                    <div class="search-message">
+                        <i class="fas fa-search"></i>
+                        <p>小陈没有找到包含 "${query}" 的文章或日记呢</p>
+                        <p>请尝试其他关键词哦</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            results.forEach(result => {
+                // 高亮显示匹配的关键词
+                const highlightedTitle = highlightKeywords(result.title, query);
+                
+                html += `
+                    <div class="search-result-item ${result.type === '生活日记' ? 'diary' : ''}" data-url="${result.url}">
+                        <h4>${highlightedTitle}</h4>
+                        <div class="search-result-meta">
+                            <span class="search-result-type">${result.type}</span>
+                            <span class="search-result-date"><i class="fas fa-calendar-alt"></i> ${result.date}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            // 添加结果统计
+            html = `<div class="result-stats">找到 ${results.length} 个匹配结果</div>${html}`;
+            
+            searchResultsContainer.innerHTML = html;
+            
+            // 添加结果项的点击事件
+            const resultItems = document.querySelectorAll('.search-result-item');
+            resultItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const url = this.getAttribute('data-url');
+                    window.location.href = url;
+                    closeSearchModalFunc();
+                });
+            });
+        }
+        
+        // 高亮显示关键词
+        function highlightKeywords(text, query) {
+            // 创建不区分大小写的正则表达式
+            const regex = new RegExp(`(${escapeRegExp(query)})`, 'gi');
+            return text.replace(regex, '<span class="highlight">$1</span>');
+        }
+        
+        // 转义正则表达式特殊字符
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+        
+        // 事件监听器
+        globalSearchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                triggerSearch();
+            }
+        });
+        
+        closeSearchModal.addEventListener('click', closeSearchModalFunc);
+        
+        // 点击模态框外部关闭
+        searchModal.addEventListener('click', function(e) {
+            if (e.target === searchModal) {
+                closeSearchModalFunc();
+            }
+        });
+        
+        // ESC键关闭
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeSearchModalFunc();
+            }
+        });
+        
+        // 添加加载动画样式
+        const style = document.createElement('style');
+        style.innerHTML = `
+            .loader-spinner {
+                display: inline-block;
+                width: 30px;
+                height: 30px;
+                border: 3px solid rgba(255,255,255,0.3);
+                border-radius: 50%;
+                border-top-color: white;
+                animation: spin 1s linear infinite;
+                margin-bottom: 15px;
+            }
+            
+            @keyframes spin {
+                to { transform: rotate(360deg); }
+            }
+            
+            .highlight {
+                background-color: #ffd700;
+                color: #000;
+                padding: 0 2px;
+                border-radius: 2px;
+            }
+        `;
+        document.head.appendChild(style);
+    });
+    </script>
+
+    <!-- 流星效果JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 创建流星光点 - 优化版
+            function createShootingStars() {
+                const container = document.getElementById('shootingStars');
+                if (!container) return; // 安全保护
+                
+                // 创建100个光点（数量翻倍）
+                const starCount = 100;
+                
+                // 清除现有光点
+                container.innerHTML = '';
+                
+                for (let i = 0; i < starCount; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star-particle';
+                    
+                    // 随机大小（2-10像素）
+                    const size = 2 + Math.random() * 8;
+                    star.style.width = `${size}px`;
+                    star.style.height = `${size}px`;
+                    
+                    // 随机起始位置
+                    const startY = Math.random() * 100;
+                    star.style.top = `${startY}%`;
+                    
+                    // 更快的速度（3-7秒完成动画）
+                    const duration = 3 + Math.random() * 4; 
+                    
+                    // 随机延迟开始时间（0-15秒）
+                    const delay = Math.random() * 15;
+                    
+                    // 应用动画效果
+                    star.style.animationDuration = `${duration}s`;
+                    star.style.animationDelay = `${delay}s`;
+                    
+                    // 添加到容器
+                    container.appendChild(star);
+                }
+            }
+            
+            // 初始化流星
+            createShootingStars();
+            
+            // 每15秒重新生成一批流星（频率翻倍）
+            setInterval(createShootingStars, 15000);
+        });
+        </script>
+    
+    {% block extra_js %}{% endblock %}
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal-content">
+            <div class="search-header">
+                <h2 class="search-title">搜索如下</h2>
+                <div class="search-input-container">
+                    <input type="text" id="globalSearchInput" class="search-input" 
+                          placeholder="输入标题关键词..." autocomplete="off">
+                </div>
+            </div>
+            
+            <div class="search-results-container" id="searchResults">
+                <div class="search-message">
+                    <i class="fas fa-search"></i>
+                    <p>输入标题关键词后按回车搜索</p>
+                </div>
+            </div>
+            
+            <!-- 添加错误信息显示区域 -->
+            <div class="error-message" id="errorMessage"></div>
+        </div>
+        
+        <button class="search-modal-close" id="closeSearchModal">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</body>
+</html>

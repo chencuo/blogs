@@ -1,0 +1,448 @@
+{# 完全覆盖默认登录模板 #}
+{% load static i18n %}
+
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'zh-hans' }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ title }} | {{ site_title|default:_('博客管理系统') }}{% endblock %}</title>
+    
+    <!-- 引入Font Awesome图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <style>
+        /* 完全重置样式 */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: url("{% static 'img/login1-bg.jpg' %}") no-repeat center center fixed; 
+        background-size: cover;
+        font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
+        padding: 20px;
+        line-height: 1.6;
+        position: relative;
+    }
+
+    /* 增强背景虚化效果 */
+    body::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: inherit;
+        filter: blur(5px) brightness(0.9);
+        z-index: -1;
+    }
+
+/* 登录容器 - 毛玻璃效果 */
+    .login-container {
+        display: flex;
+        width: 900px;
+        height: 500px;
+        background: rgba(255, 255, 255, 0.05); /* 增加透明度 */
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+        position: relative;
+        transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transform: scale(1);
+        z-index: 1;
+    
+        /* 毛玻璃特效 */
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    
+        /* 精致边框效果 */
+        border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    /* 左侧表单区域 */
+    .login-form-section {
+        flex: 1;
+        padding: 50px 60px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.4); /* 半透明白色背景增强可读性 */
+    }
+
+    .form-title {
+        margin-bottom: 40px;
+    }
+
+    .login-heading {
+        font-size: 32px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 15px;
+        position: relative; /* 为伪元素动画做准备 */
+    }
+
+    /* 标题下划线动画 */
+    .login-heading::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 80px;
+        height: 3px;
+        background: #3498db;
+        transition: width 0.3s ease;
+    }
+
+    .login-heading:hover::after {
+        width: 150px;
+    }
+
+    .login-tagline {
+        font-size: 16px;
+        color: #5a687a; /* 增加对比度 */
+        line-height: 1.5;
+        font-weight: 400;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: 600; /* 加粗提高可读性 */
+        color: #34495e;
+        font-size: 15px;
+    }
+
+    .input-container {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .input-container:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 15px 20px 15px 55px;
+        border: none;
+        font-size: 16px;
+        background: rgba(255, 255, 255, 0.9); /* 更深的背景提高可读性 */
+        transition: all 0.2s;
+    }
+
+    .form-input:focus {
+        background: white;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.4);
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #7b8793;
+        font-size: 18px;
+        z-index: 2;
+    }
+
+    .submit-btn {
+        background: linear-gradient(to right, #3498db, #2c3e50);
+        color: white;
+        width: 100%;
+        padding: 15px;
+        border: none;
+        border-radius: 8px;
+        font-size: 17px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: all 0.3s;
+        box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* 按钮悬停水波纹效果 */
+    .submit-btn::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, padding-top 0.6s;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(52, 152, 219, 0.4);
+    }
+
+    .submit-btn:hover::after {
+        width: 150%;
+        padding-top: 150%;
+    }
+
+    /* 右侧图片区域 */
+    .login-image-section {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* 图片优化样式 */
+    .content-image {
+        width: 100%; 
+        height: 100%; 
+        object-fit: cover; 
+        object-position: center; 
+        display: block; 
+        transition: transform 0.5s ease;
+    }
+
+    /* 悬停效果 */
+    .login-image-section:hover .content-image {
+        transform: scale(1.05);
+    }
+
+    /* 添加图片覆盖效果增强可读性 */
+    .content-image::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(44, 62, 80, 0.3); /* 深色覆盖层增强图片对比度 */
+    }
+
+    /* 点击动画效果优化 */
+    @keyframes container-bounce {
+        0% { 
+            transform: scale(1) rotateZ(0);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+        }
+        50% { 
+            transform: scale(0.98) rotateZ(0.5deg);
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
+        }
+        100% { 
+            transform: scale(1) rotateZ(0);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+        }
+    }
+
+    .login-container.active {
+        animation: container-bounce 0.6s ease;
+    }
+
+    /* 响应式设计优化 */
+    @media (max-width: 992px) {
+        .login-container {
+            flex-direction: column;
+            width: 95%;
+            height: auto;
+            max-width: 600px;
+            backdrop-filter: blur(8px); /* 降低模糊强度 */
+        }
+    
+        .login-image-section {
+            min-height: 300px;
+            max-height: 300px; /* 限制高度 */
+        }
+    
+        .login-form-section {
+            padding: 40px 35px;
+        }
+    
+        .login-heading {
+            font-size: 28px;
+        }
+    }
+
+    @media (max-width: 768px) {
+    .login-container {
+        border-radius: 8px;
+        width: 95%;
+        max-width: 500px;
+        margin: 0 auto;
+        }
+    }
+
+    @media (max-width: 576px) {
+        body {
+            padding: 15px;
+        }
+    
+        .login-container {
+            max-width: 100%;
+            margin: 0;
+        }
+    
+        .login-form-section {
+            padding: 35px 25px;
+        }
+    
+        .login-heading {
+            font-size: 26px;
+            margin-bottom: 10px;
+        }
+    
+        .login-tagline {
+            font-size: 14px;
+        }
+    
+        .form-input {
+            padding: 13px 18px 13px 50px;
+            font-size: 15px;
+        }
+    
+        .input-icon {
+            left: 18px;
+            font-size: 16px;
+        }
+    
+        .submit-btn {
+            padding: 14px;
+            font-size: 16px;
+        }
+    }
+
+    /* 表单标题居中样式优化 */
+    .form-title {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .login-heading {
+        font-size: 32px;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 15px;
+        text-align: center;
+        position: relative;
+    }
+
+    .login-tagline {
+        font-size: 16px;
+        color: #5a687a;
+        line-height: 1.6;
+        text-align: center;
+        max-width: 450px;
+        margin: 0 auto;
+    }
+
+    /* 标题装饰线 */
+    .login-heading::after {
+        content: "";
+        display: block;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(to right, #3498db, #2c3e50);
+        margin: 15px auto 0;
+        border-radius: 3px;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="login-container" id="login-container">
+        <!-- 左侧表单区域 -->
+        <div class="login-form-section">
+            <div class="form-title">
+                <h1 class="login-heading">博客管理系统</h1>
+                <p class="login-tagline">请登录您的账户继续访问系统</p>
+            </div>
+            
+            <form method="post" class="login-form">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label class="form-label">用户名</label>
+                    <div class="input-container">
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="text" name="username" class="form-input" placeholder="输入用户名" required autofocus>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">密码</label>
+                    <div class="input-container">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" name="password" class="form-input" placeholder="输入密码" required>
+                    </div>
+                </div>
+                
+                <button type="submit" class="submit-btn">登录系统</button>
+                
+                <div style="margin-top: 20px; text-align: center;">
+                    <p style="font-size: 14px; color: #7f8c8d;">
+                        还没有账户？<a href="#" style="color: #3498db; text-decoration: none; font-weight: 500;">申请注册</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+        
+        <!-- 右侧图片区域 -->
+        <!-- 右侧图片区域 - 仅包含图片 -->
+        <div class="login-image-section">
+            <!-- 直接放置图片 -->
+            <img src="{% static 'img/img_2001527898.jpg' %}" alt="博客管理系统" class="content-image">
+        </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const loginContainer = document.getElementById('login-container');
+        
+        // 添加点击效果
+        loginContainer.addEventListener('click', function() {
+            // 移除现有动画类
+            this.classList.remove('active');
+            
+            // 强制重排
+            void this.offsetWidth;
+            
+            // 添加动画类触发动画
+            this.classList.add('active');
+        });
+        
+        // 确保动画结束后移除动画类
+        loginContainer.addEventListener('animationend', function() {
+            this.classList.remove('active');
+        });
+        
+        // 鼠标悬停效果
+        loginContainer.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-8px) rotateZ(1deg)';
+        });
+        
+        loginContainer.addEventListener('mouseleave', function() {
+            this.style.transform = '';
+        });
+    });
+    </script>
+</body>
+</html>

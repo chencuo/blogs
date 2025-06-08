@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block content %}
+<div class="diary-container">
+    {% if diary %}
+    <!-- 日记内容区 -->
+    <div class="diary-content-box">
+        <!-- 头部区域 -->
+        <div class="diary-header">
+            <div class="author-info">
+                <div class="avatar">
+                    <div class="avatar-text">{{ diary.author|first }}</div>
+                </div>
+                <div class="info">
+                    <div class="nickname">{{ diary.author }}</div>
+                    <div class="time">{{ diary.created_at|date:"Y年m月d日 H:i" }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center py-3 mb-4">
+            <h2 class="display-5 text-purple">
+                <i class="fas fa-rose me-2"></i> {{ diary.title }}
+            </h2>
+        </div>
+        <!-- 内容区 -->
+        <div class="diary-content">
+            <div class="diary-text">
+                <p>{{ diary.content|linebreaks }}</p>
+            </div>
+            
+            <!-- 图片展示区 - 修复加载问题 -->
+            {% if diary.images.exists %}
+            <div class="photo-gallery">
+                {% for image in diary.images.all %}
+                <div class="photo-item">
+                    {% if image.image %}
+                    <!-- 使用直接的图片URL并添加版本控制 -->
+                    <img src="{{ image.image.url }}?v={% now 'U' %}" 
+                         alt="{{ image.caption|default:'日记图片' }}" 
+                         class="diary-image"
+                         onerror="handleImageError(this, '{{ image.image.url }}')">
+                    {% else %}
+                    <div class="photo-placeholder">
+                        <i class="fas fa-image fa-3x"></i>
+                        <p>图片未上传</p>
+                    </div>
+                    {% endif %}
+                    {% if image.caption %}
+                    <p class="caption">{{ image.caption }}</p>
+                    {% endif %}
+                    
+                    <!-- 调试信息块 -->
+                    <div class="image-debug" style="display:none; font-size:12px; background:#f9f9f9; padding:10px; margin-top:10px;">
+                        图片路径: {{ image.image.url }}<br>
+                        绝对路径: {{ image.image.path }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- 底部信息 -->
+        <div class="diary-footer">
+            <!-- 操作按钮 -->
+            <div class="actions">
+                <button class="action-btn like-btn">
+                    <i class="far fa-heart"></i> 点赞
+                </button>
+                <button class="action-btn">
+                    <i class="fas fa-share"></i> 分享
+                </button>
+                <button class="action-btn comment-btn" id="show-comment-form">
+                    <i class="far fa-comment"></i> 评论
+                </button>
+            </div>
+        </div>
+        
+        <!-- 评论表单区 -->
+        <div class="comment-form-container" id="comment-form">
+            <form method="post" action="{% url 'diary:post_comment' diary.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="current_page" value="{{ page_obj.number }}">
+                <div class="form-header">
+                    <h3>发表评论</h3>
+                    <p>请文明发言</p>
+                </div>
+                <div class="form-row">
+                    <input type="text" name="nickname" placeholder="你的昵称" class="comment-input">
+                </div>
+                <div class="form-row">
+                    <textarea name="content" placeholder="说点什么吧..." class="comment-textarea"></textarea>
+                </div>
+                <div class="form-submit">
+                    <button type="submit" class="submit-btn">发布评论</button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- 评论区 -->
+        <div class="comments-section" id="comments">
+            <div class="comments-header">
+                <span>评论区</span>
+            </div>
+            
+            <!-- 示例评论 -->
+            <div class="comment">
+                <div class="comment-author">
+                    <div class="avatar">
+                        <div class="avatar-text">访</div>
+                    </div>
+                    <div class="nickname">游客</div>
+                    <div class="time">2023年6月6日 16:30</div>
+                </div>
+                <div class="comment-content">
+                    写得很棒，期待更多分享！
+                </div>
+            </div>
+        </div>
+        
+        <!-- 翻页导航放在日记盒子内部，使用粘性定位 -->
+        <div class="pagination-container">
+            <div class="diary-pagination">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" class="pagination-btn prev">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                {% else %}
+                <div class="pagination-btn prev disabled">
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                {% endif %}
+                
+                {% for i in page_obj.paginator.page_range %}
+                <a href="?page={{ i }}" class="pagination-btn {% if i == page_obj.number %}active{% endif %}">
+                    {{ i }}
+                </a>
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="pagination-btn next">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                {% else %}
+                <div class="pagination-btn next disabled">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- 无日记提示 -->
+    <div class="no-diary-message">
+        <div class="empty-icon">
+            <i class="fas fa-book-open fa-4x"></i>
+        </div>
+        <h2>暂无生活日记</h2>
+        <p>管理员还未发布任何生活日记内容</p>
+        <p>请稍后访问或联系管理员添加内容</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link rel="stylesheet" href="{% static 'css/diary.css' %}">
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 图片错误处理函数 - 关键修复
+    function handleImageError(imgElement, originalUrl) {
+        console.error('图片加载失败:', originalUrl);
+        
+        // 尝试其他可能的URL格式
+        const serverOrigin = window.location.origin;
+        const altUrl = serverOrigin + "{{ MEDIA_URL }}" + originalUrl;
+        
+        // 如果当前URL已经包含域名，则不再尝试
+        if (!originalUrl.startsWith('http')) {
+            imgElement.src = altUrl;
+            return;
+        }
+        
+        // 替换为占位符
+        imgElement.onerror = null;
+        imgElement.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Crect width='100%25' height='100%25' fill='%23f5f5f5'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='monospace' font-size='16' fill='%23aaa'%3E无法加载图片%3C/text%3E%3C/svg%3E";
+        
+        // 显示调试信息
+        const debugElement = imgElement.parentElement.querySelector('.image-debug');
+        if (debugElement) {
+            debugElement.style.display = 'block';
+        }
+        
+        // 尝试访问URL以确定问题
+        testImageAccessibility(originalUrl, altUrl);
+    }
+    
+    // 测试图片可访问性
+    function testImageAccessibility(url1, url2) {
+        const timeout = 3000; // 3秒超时
+        let timer;
+        
+        // 测试第一个URL
+        testUrl(url1).then(exists => {
+            if (exists) {
+                console.log(`URL可访问: ${url1}`);
+            } else {
+                console.warn(`URL不可访问: ${url1}`);
+                testUrl(url2);
+            }
+        });
+        
+        // 测试第二个URL
+        testUrl(url2).then(exists => {
+            if (exists) {
+                console.log(`备选URL可访问: ${url2}`);
+            } else {
+                console.error(`备选URL也不可访问: ${url2}`);
+            }
+        });
+        
+        // 测试单个URL的函数
+        function testUrl(url) {
+            return new Promise(resolve => {
+                const img = new Image();
+                timer = setTimeout(() => {
+                    resolve(false);
+                }, timeout);
+                
+                img.onload = function() {
+                    clearTimeout(timer);
+                    resolve(true);
+                };
+                
+                img.onerror = function() {
+                    clearTimeout(timer);
+                    resolve(false);
+                };
+                
+                img.src = url;
+            });
+        }
+    }
+    
+    // 显示/隐藏评论表单
+    const showCommentBtn = document.getElementById('show-comment-form');
+    const commentForm = document.getElementById('comment-form');
+    
+    if (showCommentBtn && commentForm) {
+        // 初始隐藏评论表单
+        commentForm.style.display = 'none';
+        
+        showCommentBtn.addEventListener('click', function() {
+            if (commentForm.style.display === 'none') {
+                commentForm.style.display = 'block';
+                commentForm.scrollIntoView({behavior: 'smooth'});
+            } else {
+                commentForm.style.display = 'none';
+            }
+        });
+    }
+    
+    // 点赞功能
+    const likeBtn = document.querySelector('.like-btn');
+    if (likeBtn) {
+        likeBtn.addEventListener('click', function() {
+            const icon = this.querySelector('i');
+            const liked = icon.classList.contains('fas');
+            
+            if (liked) {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+            } else {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+            }
+        });
+    }
+    
+    // 启用调试模式 (当URL中有debug=true参数)
+    if (new URLSearchParams(window.location.search).has('debug')) {
+        document.querySelectorAll('.image-debug').forEach(el => {
+            el.style.display = 'block';
+        });
+    }
+});
+</script>
+{% endblock %}

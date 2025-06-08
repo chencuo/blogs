@@ -1,0 +1,481 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}友情链接 - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/friendlinks.css' %}">
+
+<style>
+    /* 顶部信息栏样式 - 匹配图片设计 */
+    .friendlinks-header {
+        position: relative;
+        background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+        border-radius: 10px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    /* 背景装饰图案 */
+    .friendlinks-header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        opacity: 0.15;
+        pointer-events: none;
+    }
+    
+    .fl-header-content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+    }
+    
+    /* 标题样式 */
+    .friendlinks-header h1 {
+        font-size: 36px;
+        color: white;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        margin-bottom: 25px;
+        font-weight: bold;
+        position: relative;
+        display: inline-block;
+    }
+    
+    /* 链条图标 */
+    .friendlinks-header h1::before {
+        content: "\f0c1"; /* FontAwesome link图标 */
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        margin-right: 12px;
+    }
+    
+    .fl-meta {
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+        flex-wrap: wrap;
+    }
+    
+    .fl-meta-item {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 8px;
+        padding: 15px 25px;
+        min-width: 150px;
+        box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    
+    .fl-meta-label {
+        display: block;
+        font-size: 16px;
+        color: #ff6b6b;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+    
+    /* 时间显示区域 */
+    .fl-update-time {
+        font-size: 18px;
+        font-weight: 500;
+        color: #333;
+        padding: 8px 12px;
+        background: rgba(0,0,0,0.02);
+        border-radius: 6px;
+    }
+    
+    /* 浏览量数值 */
+    .fl-view-count {
+        font-size: 28px;
+        font-weight: 700;
+        color: #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+    
+    /* 点赞数区域 */
+    .fl-like-count {
+        font-size: 28px;
+        font-weight: 700;
+        color: #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+    
+    /* 点赞图标 - 初始为空心，点赞后变实心红色 */
+    .fl-heart-icon {
+        font-size: 22px;
+        color: #333;
+        transition: all 0.3s;
+    }
+    
+    .liked .fl-heart-icon {
+        color: #ff0000;
+    }
+    
+    /* 友情链接网格 */
+    .friendlinks-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+    }
+    
+    /* 单个友链卡片 */
+    .fl-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        transition: all 0.4s ease;
+    }
+    
+    .fl-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+    }
+    
+    .fl-card-inner {
+        display: flex;
+        padding: 20px;
+        align-items: center;
+    }
+    
+    .fl-logo {
+        flex: 0 0 60px;
+        height: 60px;
+        margin-right: 20px;
+    }
+    
+    .fl-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+    
+    .fl-logo-placeholder {
+        width: 100%;
+        height: 100%;
+        background: #f5f5f5;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: #ccc;
+    }
+    
+    .fl-info {
+        flex: 1;
+    }
+    
+    .fl-name {
+        font-size: 18px;
+        font-weight: 600;
+        color: #3498db;
+        text-decoration: none;
+        display: block;
+        margin-bottom: 8px;
+    }
+    
+    .fl-name:hover {
+        color: #2980b9;
+        text-decoration: underline;
+    }
+    
+    .fl-description {
+        font-size: 14px;
+        color: #666;
+        line-height: 1.6;
+        margin: 0;
+    }
+    
+    .fl-actions {
+        margin-top: 10px;
+        text-align: right;
+    }
+    
+    .fl-like-btn {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 20px;
+        padding: 5px 15px;
+        color: #6c757d;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .fl-like-btn:hover {
+        background: #e9ecef;
+    }
+    
+    .fl-like-btn.liked {
+        color: #ff0000;
+        border-color: #ffd1d1;
+        background: #fff0f0;
+    }
+    
+    .no-friendlinks {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 60px 0;
+        border-radius: 12px;
+        background: white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        margin-top: 20px;
+    }
+    
+    .no-friendlinks i {
+        font-size: 60px;
+        color: #ddd;
+        margin-bottom: 20px;
+    }
+    
+    .no-friendlinks p {
+        font-size: 18px;
+        color: #777;
+    }
+    
+    /* 分页样式 */
+    .fl-pagination {
+        margin-top: 40px;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .pagination > li > a,
+    .pagination > li > span {
+        margin: 0 5px;
+        border-radius: 50% !important;
+        width: 36px;
+        height: 36px;
+        line-height: 36px;
+        text-align: center;
+        padding: 0;
+        border: 1px solid #ddd;
+        color: #3498db;
+        font-weight: 500;
+    }
+    
+    .pagination > li.active > span {
+        background: #3498db;
+        color: white;
+        border-color: #3498db;
+    }
+    
+    /* 响应式调整 */
+    @media (max-width: 992px) {
+        .friendlinks-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .fl-meta {
+            gap: 15px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .friendlinks-header {
+            padding: 20px 15px;
+        }
+        
+        .friendlinks-header h1 {
+            font-size: 28px;
+        }
+        
+        .fl-meta-item {
+            min-width: calc(50% - 20px);
+            padding: 12px;
+        }
+        
+        .fl-update-time {
+            font-size: 16px;
+        }
+        
+        .fl-view-count, .fl-like-count {
+            font-size: 24px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .fl-meta {
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .fl-meta-item {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="friendlinks-container">
+    <!-- 顶部信息栏 - 匹配图片设计 -->
+    <div class="friendlinks-header">
+        <div class="fl-header-content">
+            <h1>友情链接</h1>
+            <div class="fl-meta">
+                <!-- 点赞数统计 -->
+                <div class="fl-meta-item">
+                    <span class="fl-meta-label">点赞数</span>
+                    <div class="fl-like-count">
+                        <i class="fas fa-heart fl-heart-icon"></i>
+                        <span id="total-likes">{{ total_likes }}</span>
+                    </div>
+                </div>
+                
+                <!-- 浏览量统计 -->
+                <div class="fl-meta-item">
+                    <span class="fl-meta-label">浏览量</span>
+                    <div class="fl-view-count">
+                        <i class="fas fa-eye"></i>
+                        <span id="page-views">{{ page_views }}</span>
+                    </div>
+                </div>
+                <!-- 最后更新时间显示 -->
+                <div class="fl-meta-item">
+                    <span class="fl-meta-label">最后更新</span>
+                    <div class="fl-update-time">
+                        {{ last_updated|date:"Y-m-d H:i" }}
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- 友情链接网格 -->
+    <div class="friendlinks-grid">
+        {% for link in friendlinks %}
+        <div class="fl-card">
+            <div class="fl-card-inner">
+                <div class="fl-logo">
+                    {% if link.get_logo %}
+                        <img src="{{ link.get_logo }}" alt="{{ link.name }} Logo">
+                    {% else %}
+                        <div class="fl-logo-placeholder">
+                            <i class="fas fa-link"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="fl-info">
+                    <a href="{{ link.url }}" target="_blank" class="fl-name">
+                        {{ link.name }}
+                    </a>
+                    <p class="fl-description">
+                        {{ link.description|truncatechars:60 }}
+                    </p>
+                    <div class="fl-actions">
+                        <button class="fl-like-btn" data-id="{{ link.id }}">
+                            <i class="far fa-heart"></i>
+                            <span>{{ link.likes }}</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="no-friendlinks">
+            <i class="fas fa-link"></i>
+            <p>暂无友情链接</p>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- 分页控制 -->
+    {% if is_paginated %}
+    <div class="fl-pagination">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+            <li><a href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+            {% else %}
+            <li class="disabled"><span>&laquo;</span></li>
+            {% endif %}
+            
+            {% for i in paginator.page_range %}
+            {% if page_obj.number == i %}
+            <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+            {% else %}
+            <li><a href="?page={{ i }}">{{ i }}</a></li>
+            {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+            <li><a href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+            {% else %}
+            <li class="disabled"><span>&raquo;</span></li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // 增加页面访问量
+    $.ajax({
+        url: "{% url 'links:increment_page_views' %}",
+        method: "POST",
+        data: {
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        success: function(response) {
+            $("#page-views").text(response.page_views);
+        }
+    });
+    
+    // 点赞功能实现
+    $('.fl-like-btn').on('click', function() {
+        const btn = $(this);
+        const linkId = btn.data('id');
+        
+        $.ajax({
+            url: `/links/like/${linkId}/`,
+            method: 'POST',
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if(response.success) {
+                    // 更新当前友链的点赞数
+                    btn.find('span').text(response.likes);
+                    btn.addClass('liked');
+                    btn.find('i').removeClass('far').addClass('fas');
+                    
+                    // 更新总点赞数
+                    $("#total-likes").text(response.total_likes);
+                    
+                    // 更新点赞图标颜色
+                    $('.fl-heart-icon').css('color', '#ff0000');
+                    
+                    // 显示点赞动画
+                    const heart = $('<i class="fas fa-heart heart-animation" style="color:#ff0000;"></i>');
+                    btn.append(heart);
+                    
+                    setTimeout(function() {
+                        heart.remove();
+                    }, 1000);
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

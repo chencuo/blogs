@@ -1,0 +1,31 @@
+==========================
+网站项目安装与运行指南
+==========================
+
+1. 确保已安装 Python 3.9.13 anconda 和 pip 以及 Django==3.2.18
+
+2. 确保已经安装django-admin-interface==0.30.0
+
+3. 可以查看requirements文件查看博主环境所有依赖，如果您是使用的python anaconda 3.9.13
+   那么您只需要安装 django-admin-interface==0.30.0 即可运行，不需要在执行第四步骤
+
+4. 安装依赖：
+   pip install -r requirements.txt 不建议使用第四步骤因为有现成的anaconda环境，且依赖巨多有反索
+   您也无法直接运行(因为路径)
+
+5. 运行数据库迁移：
+   python manage.py migrate
+
+
+7. 收集静态文件：
+   python manage.py collectstatic
+
+8. 运行开发服务器：
+   python manage.py runserver
+
+9. 在浏览器访问：http://127.0.0.1:8000
+
+10. 管理员后台：http://127.0.0.1:8000/admin
+
+
+

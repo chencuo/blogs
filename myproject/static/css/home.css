@@ -1,0 +1,522 @@
+/* 主页专用样式 */
+/* ======================== */
+/* 通用样式 */
+/* ======================== */
+.section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #2c3e50;
+    padding: 10px 15px;
+    border-left: 4px solid #3498db;
+    margin-bottom: 20px;
+    background: linear-gradient(to right, rgba(52, 152, 219, 0.4), transparent);
+}
+
+.section-title i {
+    margin-right: 10px;
+    color: #3498db;
+}
+
+/* ======================== */
+/* 评论数据流部分 */
+/* ======================== */
+
+ /* 评论数据流容器 */
+/* 水平流动评论瀑布流 */
+/* 瀑布流评论容器 */
+.transparent-icon-stream {
+    position: relative;
+    width: 100%;
+    height: 360px;
+    overflow: hidden;
+    margin-bottom: 35px;
+    border-radius: 12px;
+    /* 重点优化：恢复透明效果 */
+    background: rgba(255, 255, 255, 0.15); /* 半透明背景 */
+    backdrop-filter: blur(10px); /* 毛玻璃效果 */
+    padding: 15px 0;
+    box-shadow: 
+        inset 0 0 20px rgba(255, 255, 255, 0.15),
+        0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.icon-track {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    height: 120px; /* 每行高度 */
+    width: max-content; /* 关键：允许内容超出 */
+    gap: 25px;
+    padding: 0 20px;
+    animation: iconFlow 40s linear infinite;
+}
+
+#track-row1 { top: 0; }
+#track-row2 { top: 120px; animation-duration: 50s; }
+#track-row3 { top: 240px; animation-duration: 60s; }
+
+@keyframes iconFlow {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+
+.icon-combo {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.minimal-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    margin-right: -10px;
+}
+
+.text-bubble {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 20px;
+    padding: 8px 15px;
+    color: white;
+    font-size: 16px;
+    white-space: nowrap;
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/* ======================== */
+/* 文章轮播部分 */
+/* ======================== */
+/* ======================== */
+/* 严格防溢出文章轮播 */
+/* ======================== */
+.article-carousel-section {
+    width: 100%;
+    max-width: 100%;
+    padding: 20px;
+    position: relative;
+    overflow: hidden; /* 第一道防线 */
+    background: rgba(255, 255, 255, 0.05); /* 透明背景 */
+
+}
+
+.carousel-container {
+    position: relative;
+    height: 300px;
+    max-height: 300px;
+    overflow: hidden; /* 关键修复 */
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.55);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    max-width: 100%; /* 新增宽度限制 */
+    width: 100%; /* 确保宽度填充但不溢出 */
+    margin: 0 auto; /* 居中处理 */
+    contain: strict; /* 严格的溢出控制 */
+}
+
+.carousel-slider {
+    display: flex;
+    height: 100%;
+    max-height: 100%; /* 硬性高度继承 */
+    transition: transform 0.6s ease;
+}
+
+/* 轮播项 - 硬性尺寸控制 */
+.carousel-item {
+    min-width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    padding: 10px;
+    display: flex;
+    overflow: hidden; /* 第三道防线 */
+    box-sizing: border-box; /* 盒模型约束 */
+    border: 1px solid transparent; /* 视觉边界 */
+    
+}
+
+/* 图片容器 - 硬性尺寸限制 */
+.image-content {
+    flex: 0 0 45%;
+    max-width: 45%;
+    max-height: 100%;
+    overflow: hidden; /* 第四道防线 */
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.article-image {
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+    contain: content; /* 严格内容限制 */
+}
+
+/* 文字容器 - 硬性尺寸限制 */
+.text-content {
+    flex: 1;
+    padding: 0 20px;
+    min-width: 0; /* 允许内容截断 */
+    max-width: 55%; /* 硬性宽度限制 */
+    height: 100%;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden; /* 第五道防线 */
+}
+
+/* 标题 - 强制截断 */
+.article-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0 0 10px 0;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 5px;
+    max-width: 100%;
+}
+
+/* 摘要 - 强制截断 */
+.article-excerpt-container {
+    flex: 1;
+    min-height: 0; /* 允许压缩 */
+    max-height: 70px; /* 硬性高度限制 */
+    overflow: hidden; /* 第六道防线 */
+    padding: 5px 0;
+    margin: 10px 0;
+    position: relative;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+}
+
+.article-excerpt {
+    font-size: 15px;
+    color: #4a5568;
+    line-height: 1.5;
+    margin: 0;
+    text-align: justify;
+    hyphens: auto; /* 自动断字 */
+}
+
+/* 按钮容器 - 绝对居中 */
+.btn-container {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-primary {
+    padding: 8px 25px;
+    background: #3498db;
+    color: white;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 15px;
+    transition: background 0.3s;
+    border: none;
+    cursor: pointer;
+    z-index: 2;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    display: inline-block;
+    min-width: 120px;
+}
+
+/* 轮播点 - 防止溢出 */
+.carousel-nav {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    z-index: 3;
+    overflow: visible;
+    pointer-events: none;
+}
+
+.carousel-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.7);
+    margin: 0 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 1px solid #3498db;
+    pointer-events: all;
+}
+
+.carousel-dot.active {
+    background: #3498db;
+    transform: scale(1.3);
+}
+/* ======================== */
+/* 个人介绍部分 */
+/* ======================== */
+.profile-section {
+    background: rgba(255, 255, 255, 0.25); /* 透明背景 */
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.profile-card {
+    padding: 20px;
+}
+
+.profile-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 15px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #f1f2f6;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-name {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.profile-intro {
+    text-align: center;
+    font-size: 18px;
+    color: #e74c3c;
+    font-style: italic;
+    margin-bottom: 25px;
+}
+
+.profile-tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.profile-tags .tag {
+    background: #3498db;
+    color: white;
+    padding: 6px 18px;
+    border-radius: 30px;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.profile-tags .tag:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+}
+
+.profile-message {
+    display: flex;
+    background: linear-gradient(145deg, #2c3e50, #1a252f);
+    border-radius: 10px;
+    overflow: hidden;
+    color: white;
+}
+
+.profile-card-info {
+    flex: 1;
+    padding: 25px;
+}
+
+.intro-title {
+    font-size: 24px;
+    color: #3498db;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+.profile-map-container {
+    width: 100%;
+    height: 200px;
+    background: #34495e;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.location-text {
+    text-align: center;
+    color: white;
+    font-size: 20px;
+}
+
+.location-text p {
+    margin: 5px 0;
+}
+
+.location-text p:first-child {
+    font-weight: 700;
+    font-size: 24px;
+}
+
+/* ======================== */
+/* 响应式设计 */
+/* ======================== */
+@media (max-width: 768px) {
+    .carousel-item {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .article-image {
+        flex: 0 0 200px;
+        width: 100%;
+    }
+    
+    .profile-message {
+        flex-direction: column;
+    }
+    
+    .profile-map-container {
+        height: 150px;
+    }
+}
+/* 简洁留言样式 */
+.minimal-comment-stream {
+    background-color: #000;
+    padding: 25px;
+    border-radius: 15px;
+    min-height: 300px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+    margin-bottom: 30px;
+    border: 1px solid #333;
+}
+
+.comment-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    animation: floatUp 20s linear infinite;
+    animation-delay: calc(var(--delay) * 1s);
+    position: absolute;
+    left: 0;
+    width: 100%;
+    opacity: 0;
+    transition: all 0.5s ease;
+    transform: translateX(50px);
+    will-change: transform, opacity;
+}
+
+@keyframes floatUp {
+    0% {
+        transform: translateY(300px);
+        opacity: 0;
+    }
+    8% {
+        opacity: 1;
+        transform: translateY(270px);
+    }
+    92% {
+        opacity: 1;
+        transform: translateY(-20px);
+    }
+    100% {
+        transform: translateY(-100px);
+        opacity: 0;
+    }
+}
+
+.avatar-container {
+    flex-shrink: 0;
+    margin-right: 18px;
+}
+
+.avatar-circle {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ffffff, #e0e0e0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 22px;
+    color: #000;
+    border: 2px solid #555;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.comment-item:hover .avatar-circle {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+
+.comment-item:hover .comment-text {
+    background-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 15px rgba(100, 200, 255, 0.3);
+}
+
+@keyframes textGlow {
+    from {
+        text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+    }
+    to {
+        text-shadow: 0 0 20px rgba(100, 200, 255, 0.7);
+    }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .minimal-comment-stream {
+        padding: 15px;
+    }
+    
+    .comment-text {
+        font-size: 16px;
+        padding: 10px 15px;
+    }
+    
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+}

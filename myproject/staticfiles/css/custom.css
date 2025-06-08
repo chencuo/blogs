@@ -1,0 +1,201 @@
+/* 导航栏样式 */
+.navbar-default {
+    background-color: #337ab7;
+    border-color: #2e6da4;
+    border-radius: 0;
+}
+
+.navbar-default .navbar-brand,
+.navbar-default .navbar-nav > li > a {
+    color: #fff !important;
+}
+
+.navbar-default .navbar-brand:hover,
+.navbar-default .navbar-nav > li > a:hover {
+    color: #e6e6e6 !important;
+}
+
+/* 页脚样式 */
+.footer {
+    background-color: #f5f5f5;
+    border-top: 1px solid #e7e7e7;
+    padding: 15px 0;
+}
+
+/* 通用样式 */
+.page-header {
+    margin-top: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+/* 关于页面样式 */
+.about-section {
+    margin-bottom: 30px;
+}
+
+.about-section h2 {
+    border-left: 3px solid #337ab7;
+    padding-left: 10px;
+    margin-top: 25px;
+    margin-bottom: 15px;
+}
+
+/* 联系方式 */
+.contact-methods {
+    margin-top: 30px;
+}
+
+.contact-methods li {
+    margin-bottom: 10px;
+}
+
+/* 首页样式 */
+.jumbotron {
+    margin-top: 20px;
+    padding: 20px 0;
+    text-align: center;
+}
+
+/* 搜索框优化 */
+.navbar-form .form-control {
+    border-color: #ddd;
+}
+
+.navbar-form .btn {
+    border-color: #ddd;
+}
+
+/* 修复图标 */
+.btn .glyphicon {
+    vertical-align: middle;
+}
+
+
+/* 内容盒子鼠标悬停效果 */
+.content-box:hover {
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .content-box {
+        padding: 15px;
+    }
+}
+
+/* 关于页面小调整 */
+.about-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px dashed #eee;
+}
+
+.about-section:last-child {
+    border-bottom: none;
+}
+
+/* 首页jumbotron样式调整 */
+.jumbotron {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 30px;
+    border-radius: 8px;
+}
+
+/* 页脚 */
+/* 页脚样式 */
+.footer {
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 20px 0;
+    color: #f0f0f0;
+    text-align: center;
+    font-size: 14px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.footer-info-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.github-badge-big {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 5px 0;
+    font-family: "Open Sans", sans-serif;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.badge-subject {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: #4d4d4d;
+    padding: 6px 10px;
+    font-size: 14px;
+    color: white;
+    font-weight: 500;
+}
+
+.badge-value {
+    padding: 6px 12px;
+    font-size: 14px;
+    color: white;
+    font-weight: 500;
+}
+
+.badge-value a {
+    color: white;
+    text-decoration: none;
+    transition: opacity 0.3s;
+}
+
+.badge-value a:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+/* 颜色定义 */
+.bg-orange { background-color: #ec8a64 !important; }
+.bg-red { background-color: #cb7574 !important; }
+.bg-apricots { background-color: #f7c280 !important; }
+.bg-green { background-color: #5cb85c !important; }
+.bg-shallots { background-color: #97c3c6 !important; }
+
+/* 版权声明样式 */
+.copyright-notice {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    font-weight: 500;
+    letter-spacing: 0.8px;
+}
+
+/* 运行时间数字样式 */
+.odometer {
+    display: inline-block;
+    min-width: 20px;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .github-badge-big {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .badge-subject, .badge-value {
+        text-align: center;
+        justify-content: center;
+    }
+}

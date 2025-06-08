@@ -1,0 +1,301 @@
+/* 友情链接容器 */
+.friendlinks-container {
+    padding: 30px;
+}
+
+/* 头部样式 */
+.friendlinks-header {
+    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+    border-radius: 10px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.friendlinks-header::before {
+    content: "";
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 150px;
+    height: 150px;
+    background-size: contain;
+    opacity: 0.2;
+    transform: rotate(20deg);
+}
+
+.friendlinks-header::after {
+    content: "";
+    position: absolute;
+    bottom: -30px;
+    left: -30px;
+    width: 100px;
+    height: 100px;
+    background-size: contain;
+    opacity: 0.2;
+    transform: rotate(-15deg);
+}
+
+.fl-header-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+}
+
+.friendlinks-header h1 {
+    font-size: 42px;
+    color: white;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    margin-bottom: 25px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.fl-meta {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.fl-meta-item {
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 10px;
+    padding: 12px 20px;
+    min-width: 120px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+.fl-meta-label {
+    display: block;
+    font-size: 14px;
+    color: #ff6b6b;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.fl-meta-values {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+}
+
+.fl-meta-values div {
+    margin: 3px 0;
+}
+
+.fl-meta-value {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 友情链接网格 */
+.friendlinks-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+}
+
+.fl-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    transition: all 0.4s ease;
+}
+
+.fl-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
+.fl-card-inner {
+    display: flex;
+    padding: 20px;
+}
+
+.fl-logo {
+    flex: 0 0 80px;
+    height: 80px;
+    margin-right: 20px;
+}
+
+.fl-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.fl-logo-placeholder {
+    width: 100%;
+    height: 100%;
+    background: #f5f5f5;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: #ccc;
+}
+
+.fl-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.fl-name {
+    font-size: 20px;
+    font-weight: bold;
+    color: #3498db;
+    text-decoration: none;
+    transition: all 0.3s;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.fl-name:hover {
+    color: #2980b9;
+    text-decoration: underline;
+}
+
+.fl-description {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.fl-actions {
+    display: flex;
+    align-items: center;
+}
+
+.fl-like-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #bbb;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    transition: all 0.3s;
+    padding: 8px;
+}
+
+.fl-like-btn:hover {
+    color: #ff6b6b;
+}
+
+.fl-like-btn.liked {
+    color: #ff6b6b;
+}
+
+.fl-like-btn.liked i {
+    color: #ff6b6b;
+}
+
+.heart-animation {
+    position: absolute;
+    animation: heartFloat 1s ease-out forwards;
+}
+
+@keyframes heartFloat {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+}
+
+.no-friendlinks {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 50px 0;
+    color: #999;
+}
+
+/* 分页样式 */
+.fl-pagination {
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+}
+
+.pagination > li > a,
+.pagination > li > span {
+    margin: 0 5px;
+    border-radius: 50% !important;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    padding: 0;
+    border: 1px solid #ddd;
+    color: #3498db;
+}
+
+.pagination > li.active > span {
+    background: #3498db;
+    color: white;
+    border-color: #3498db;
+}
+
+/* 响应式调整 */
+@media (max-width: 992px) {
+    .friendlinks-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .fl-meta {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 768px) {
+    .friendlinks-header {
+        padding: 20px;
+    }
+    
+    .friendlinks-header h1 {
+        font-size: 32px;
+    }
+    
+    .fl-meta-item {
+        min-width: 100px;
+        padding: 10px 15px;
+    }
+    
+    .fl-card-inner {
+        padding: 15px;
+    }
+    
+    .fl-logo {
+        flex: 0 0 60px;
+        height: 60px;
+        margin-right: 15px;
+    }
+}
+
+@media (max-width: 576px) {
+    .fl-meta {
+        gap: 15px;
+    }
+    
+    .friendlinks-container {
+        padding: 15px;
+    }
+}

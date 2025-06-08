@@ -1,0 +1,735 @@
+{% extends "base.html" %}
+{% load static %}
+{% load static %}
+{% load color_tags %} {# 加载自定义颜色标签 #}
+{% block extra_css %}
+
+    <!-- 引入主页专用CSS -->
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+<!-- 在head标签中引入高德地图API -->
+<script src="https://webapi.amap.com/maps?v=2.0&key=512ef80e3828defb1ddc0d62e6fc0dfd&plugin=AMap.Geocoder,AMap.Geolocation"></script>
+<!-- <script src="https://webapi.amap.com/maps?v=2.0&key=512ef80e3828defb1ddc0d62e6fc0dfd"></script> -->
+{% endblock %}
+
+{% block content %}
+<div class="main-content-column">
+        <!-- 文章轮播功能 -->
+        <div class="article-carousel-section">
+            <h3 class="section-title">
+                <i class="fas fa-book"></i> 精选文章
+            </h3>
+            <div class="carousel-container">
+                <div class="carousel-slider">
+                    {% for article in articles %}
+                    <div class="carousel-item">
+                        <!-- 图片区域 -->
+                        <div class="image-content">
+                            {% if article.image and article.image.url %}
+                            <img src="{{ article.image.url }}" alt="{{ article.title }}" class="article-image">
+                            {% else %}
+                            <img src="{% static 'img/default-cover.jpg' %}" alt="默认封面" class="article-image">
+                            {% endif %}
+                        </div>
+                        
+                        <!-- 文字内容区域 -->
+                        <div class="text-content">
+                            <h4 class="article-title">{{ article.title }}</h4>
+                            <div class="article-excerpt-container">
+                                <p class="article-excerpt">{{ article.summary|truncatechars:80 }}</p>
+                            </div>
+                            <div class="btn-container">
+                                <a href="{{ article.get_absolute_url }}" class="btn btn-primary">阅读全文</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="carousel-nav">
+                    {% for i in articles %}
+                    <span class="carousel-dot" data-index="{{ forloop.counter0 }}"></span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <!-- 透明图标+文字瀑布流 -->
+        <div class="multi-stream-container">
+            <h3 class="section-title">
+                <i class="fas fa-book"></i> 优质评论
+            </h3>
+            <div class="transparent-icon-stream">
+                <!-- 第一行评论轨道 -->
+                <div class="icon-track" id="track-row1"></div>
+                
+                <!-- 第二行评论轨道 -->
+                <div class="icon-track" id="track-row2"></div>
+                
+                <!-- 第三行评论轨道 -->
+                <div class="icon-track" id="track-row3"></div>
+            </div>
+        </div>
+        <!-- 第三部分：个人介绍 -->
+        <div class="profile-section">
+            <!-- 左侧技术展示区 -->
+            <div class="tech-area">
+                <!-- 左下角个人简介区 -->
+                <div class="personal-info">
+                    <p class="greeting">你好，很高兴认识你 🤝</p>
+                    <h2 class="name">我叫陈错</h2>
+                    <p class="roles">是一名<span>云计算运维师</span>、<span>学生</span>、<span>二次元爱好者</span>、<span>麻瓜</span></p>
+                </div>
+                <div class="creativity-title">
+                    <h3>开启创造力</h3>
+                    <div class="underline"></div>
+                </div>
+                <div class="tech-grid">
+                    <!-- 第一行 -->
+                    <div class="tech-item">
+                        <div class="tech-icon" style="background-color: #ff7043;">
+                            <span>Python</span>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon" style="background-color: #0db7e4;">
+                            <span>Docker</span>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon" style="background-color: #2196f3;">
+                            <span>K8s</span>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon" style="background-color: #4caf50;">
+                            <span>Mysql</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 第二行 -->
+                    <div class="tech-item">
+                        <div class="tech-icon" style="background-color: #9c27b0;">
+                            <span>Django</span>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon" style="background-color: #e91e63;">
+                            <span>jenkins</span>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon" style="background-color: #3f51b5;">
+                            <span>Github</span>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon" style="background-color: #ff9800;">
+                            <span>Linux</span>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon" style="background-color: #607d8b;">
+                            <span>Zabbix</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 第三行 -->
+                    <div class="tech-item">
+                        <div class="tech-icon" style="background-color: #00bcd4;">
+                            <span>ansible</span>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon" style="background-color: #61dafb;">
+                            <span>Html5</span>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon" style="background-color: #2965f1;">
+                            <span>CSS3</span>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon" style="background-color: #f7df1e;">
+                            <span>Hadoop</span>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon" style="background-color: #e44d26;">
+                            <span>Openstack</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 第四行 -->
+                    <div class="tech-item">
+                        <div class="tech-icon" style="background-color: #f05133;">
+                            <span>Git</span>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon" style="background-color: #41b883;">
+                            <span>Redhat</span>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon" style="background-color: #4caf50;">
+                            <span>...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右侧地图区域 -->
+            <div class="right-column">
+                <!-- 地图区域 (高度缩短为250px) -->
+                <div class="location-area">
+                    <div id="map-container">
+                        <div id="amap-container" style="width:100%; height:100%;"></div>
+                        <div class="location-label">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span id="location-text">湖北武汉</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- 时钟 -->
+                <div class="clock-container">
+                    <div class="clock-widget">
+                        <div class="time-display" id="current-time">00:00:00</div>
+                        <div class="date-display" id="current-date">2023年1月1日</div>
+                    </div>
+                </div>
+                
+                <!-- 新增标签轮播区域 -->
+                <div class="tags-carousel">
+                    <!-- 第一组标签 -->
+                    <div class="tag-group active">
+                        <div class="tag-item">动漫爱好者</div>
+                        <div class="tag-item">分享与热心</div>
+                        <div class="tag-item">云计算小牛</div>
+                        <div class="tag-item">贪玩而好吃</div>
+                    </div>
+                    
+                    <!-- 第二组标签 -->
+                    <div class="tag-group">
+                        <div class="tag-item">积极乐天派</div>
+                        <div class="tag-item">实地行动派</div>
+                        <div class="tag-item">团队发动机</div>
+                        <div class="tag-item">狠人话不多</div>
+                    </div>
+                </div>
+                <!-- 特长 -->
+                <div class="specialty-card-container">
+                    <div class="specialty-card">
+                        <!-- 主标题与装饰 -->
+                        <div class="card-header-techang">
+                            <div class="card-title">特长</div>
+                            <div class="decoration">
+                                <div class="triangle"></div>
+                                <div class="triangle"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- 卡片内容 -->
+                        <div class="card-content">
+                            <div class="main-text">脑回路新奇的人坤</div>
+                            <div class="secondary-text">二次元指数 MAX</div>
+                        </div>
+                        
+                        <!-- 星光装饰 -->
+                        <div class="stardust"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. 从Django视图获取评论数据
+    const serverComments = JSON.parse('{{ comments_data|escapejs }}');
+    
+    // 确保有评论数据
+    if (!serverComments || serverComments.length === 0) {
+        serverComments = [
+            {"author": "系统", "content": "暂无评论，欢迎第一条留言！"},
+            {"author": "官方", "content": "精彩内容即将更新"},
+            {"author": "提示", "content": "点击此处发表您的观点"}
+        ];
+    }
+    
+    // 初始化瀑布流
+    initCommentStream(serverComments);
+    
+    // 2. 轮播功能（保持原有功能）
+    initCarousel();
+});
+
+// 初始化瀑布流
+function initCommentStream(comments) {
+    // 确保有足够的数据（至少3条）
+    if (comments.length < 3) {
+        const baseComments = [
+            {author: "用户", content: "这是一条示例评论"},
+            {author: "访客", content: "网站内容很有帮助"},
+            {author: "读者", content: "期待更多更新"}
+        ];
+        comments = [...comments, ...baseComments.slice(0, 3 - comments.length)];
+    }
+    
+    // 填充三行轨道
+    fillCommentTrack('track-row1', comments);
+    fillCommentTrack('track-row2', comments);
+    fillCommentTrack('track-row3', comments);
+}
+
+// 填充单个轨道
+function fillCommentTrack(trackId, comments) {
+    const track = document.getElementById(trackId);
+    if (!track) return;
+    
+    // 清空轨道
+    track.innerHTML = '';
+    
+    // 创建颜色数组
+    const colors = ['#FF7043', '#3498DB', '#9B59B6', '#2ECC71', '#F1C40F', '#E74C3C'];
+    
+    // 添加评论项
+    comments.forEach((comment, index) => {
+        const combo = document.createElement('div');
+        combo.className = 'icon-combo';
+        
+        // 获取作者首字母
+        const initial = comment.author && comment.author.length > 0 ? 
+            comment.author.charAt(0).toUpperCase() : '?';
+        
+        // 随机选择颜色
+        const colorIndex = Math.floor(Math.random() * colors.length);
+        
+        combo.innerHTML = `
+            <div class="minimal-icon" style="background-color: ${colors[colorIndex]};">
+                <span>${initial}</span>
+            </div>
+            <div class="text-bubble">${comment.content}</div>
+        `;
+        
+        track.appendChild(combo);
+    });
+    
+    // 添加副本确保连续性
+    comments.slice(0, Math.max(1, Math.floor(comments.length/2))).forEach(comment => {
+        const combo = document.createElement('div');
+        combo.className = 'icon-combo';
+        
+        const initial = comment.author && comment.author.length > 0 ? 
+            comment.author.charAt(0).toUpperCase() : '?';
+        
+        const colorIndex = Math.floor(Math.random() * colors.length);
+        
+        combo.innerHTML = `
+            <div class="minimal-icon" style="background-color: ${colors[colorIndex]};">
+                <span>${initial}</span>
+            </div>
+            <div class="text-bubble">${comment.content}</div>
+        `;
+        
+        track.appendChild(combo);
+    });
+}
+
+// 轮播功能
+function initCarousel() {
+    const slider = document.querySelector('.carousel-slider');
+    const dots = document.querySelectorAll('.carousel-dot');
+    const items = document.querySelectorAll('.carousel-item');
+    
+    if (!slider || !items.length) return;
+    
+    let currentIndex = 0;
+    
+    function updateSlider() {
+        slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+        
+        // 更新指示点状态
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === currentIndex);
+        });
+    }
+    
+    // 点击指示点切换
+    dots.forEach(dot => {
+        dot.addEventListener('click', () => {
+            currentIndex = parseInt(dot.dataset.index);
+            updateSlider();
+        });
+    });
+    
+    // 自动轮播
+    setInterval(() => {
+        currentIndex = (currentIndex + 1) % items.length;
+        updateSlider();
+    }, 5000);
+}
+</script>
+<script>
+$(document).ready(function() {   
+    // 2. 文章轮播功能
+    const slider = $('.carousel-slider');
+    const items = $('.carousel-item');
+    const dots = $('.carousel-dot');
+    let currentIndex = 0;
+    let slideInterval;
+    
+    // 显示指定幻灯片
+    function showSlide(index) {
+        slider.css('transform', `translateX(-${index * 100}%)`);
+        dots.removeClass('active').eq(index).addClass('active');
+        currentIndex = index;
+    }
+    
+    // 自动轮播
+    function startAutoSlide() {
+        slideInterval = setInterval(function() {
+            currentIndex = (currentIndex + 1) % items.length;
+            showSlide(currentIndex);
+        }, 5000);
+    }
+    
+    // 点选切换幻灯片
+    dots.click(function() {
+        clearInterval(slideInterval);
+        const index = $(this).data('index');
+        showSlide(index);
+        startAutoSlide();
+    });
+    
+    // 初始化轮播
+    showSlide(0);
+    startAutoSlide();
+});  // 修复后的闭合，只有一个大括号和小括号
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 创建星空背景
+    function createStarryBackground() {
+        const profileSection = document.querySelector('.profile-section');
+        const stars = 200;
+        
+        for (let i = 0; i < stars; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            
+            // 随机位置
+            const posX = Math.random() * 100;
+            const posY = Math.random() * 100;
+            star.style.left = `${posX}%`;
+            star.style.top = `${posY}%`;
+            
+            // 随机大小
+            const size = Math.random() * 3;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            
+            // 随机透明度
+            const opacity = Math.random() * 0.7 + 0.1;
+            star.style.opacity = opacity;
+            
+            // 随机动画持续时间
+            const duration = Math.random() * 4 + 2;
+            star.style.animationDuration = `${duration}s`;
+            
+            profileSection.appendChild(star);
+        }
+    }
+    
+    // 初始化星空背景
+    createStarryBackground();
+    
+});
+
+// 个人简介交互效果
+document.addEventListener('DOMContentLoaded', function() {
+    const personalInfo = document.querySelector('.personal-info');
+    
+    // 创建装饰气泡
+    function createBubbles() {
+        // 清除现有气泡
+        personalInfo.querySelectorAll('.bubble').forEach(b => b.remove());
+        
+        // 创建气泡
+        for (let i = 0; i < 6; i++) {
+            const bubble = document.createElement('div');
+            bubble.classList.add('bubble');
+            bubble.style.width = `${Math.random() * 80 + 20}px`;
+            bubble.style.height = bubble.style.width;
+            
+            // 随机位置
+            bubble.style.left = `${Math.random() * 100}%`;
+            bubble.style.top = `${Math.random() * 100}%`;
+            
+            // 随机背景色
+            const colors = ['rgba(255, 255, 255, 0.12)', 'rgba(255, 255, 255, 0.08)', 'rgba(255, 255, 255, 0.15)'];
+            bubble.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            personalInfo.appendChild(bubble);
+        }
+    }
+    
+    if (personalInfo) {
+        // 初始气泡
+        createBubbles();
+        
+        // 点击效果
+        personalInfo.addEventListener('click', function(e) {
+            // 波纹效果
+            createRipple(e);
+            
+            // 弹出动画
+            this.style.transform = 'scale(0.95)';
+            this.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.1)';
+            
+            // 文字动画
+            this.querySelector('.greeting').style.transform = 'translateX(5px)';
+            this.querySelector('.name').style.transform = 'scale(1.05)';
+            this.querySelector('.name').style.letterSpacing = '1.5px';
+            
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+                this.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
+                this.querySelector('.greeting').style.transform = 'translateX(0)';
+                this.querySelector('.name').style.transform = 'scale(1)';
+                this.querySelector('.name').style.letterSpacing = '0';
+                
+                // 更新气泡位置
+                createBubbles();
+            }, 300);
+        });
+        
+        // 鼠标悬停效果
+        personalInfo.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+            this.style.boxShadow = '0 15px 30px rgba(0, 0, 0, 0.2)';
+        });
+        
+        personalInfo.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
+        });
+    }
+    
+    // 创建点击波纹效果
+    function createRipple(e) {
+        const rect = personalInfo.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        const ripple = document.createElement('span');
+        ripple.classList.add('ripple');
+        ripple.style.left = `${x}px`;
+        ripple.style.top = `${y}px`;
+        
+        personalInfo.appendChild(ripple);
+        
+        setTimeout(() => {
+            ripple.remove();
+        }, 600);
+    }
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 标签轮播功能
+    const tagGroups = document.querySelectorAll('.tag-group');
+    let currentIndex = 0;
+    
+    function startTagCarousel() {
+        setInterval(() => {
+            // 移除当前活跃组的active类
+            tagGroups.forEach(group => group.classList.remove('active'));
+            
+            // 计算下一个索引
+            currentIndex = (currentIndex + 1) % tagGroups.length;
+            
+            // 添加active类到下一组
+            tagGroups[currentIndex].classList.add('active');
+        }, 2000); // 2秒切换一次
+    }
+    
+    // 启动标签轮播
+    startTagCarousel();
+});
+// 高德地图
+document.addEventListener('DOMContentLoaded', function() {
+    // 确保高德地图API已加载
+    if (typeof AMap === 'undefined') {
+        console.error('高德地图API未加载');
+        return;
+    }
+
+    const defaultPosition = [114.428586, 30.449323];
+    
+    try {
+        // 创建地图
+        const map = new AMap.Map('amap-container', {
+            zoom: 13,
+            center: defaultPosition,
+            viewMode: '3D',
+            mapStyle: 'amap://styles/whitesmoke'
+        });
+
+        // 添加标记
+        const marker = new AMap.Marker({
+            position: defaultPosition,
+            map: map
+        });
+
+        // 使用插件系统 - 修正后的方法
+        AMap.plugin(['AMap.Geolocation', 'AMap.Geocoder', 'AMap.ToolBar', 'AMap.Scale'], function() {
+            // 创建地理编码器
+            const geocoder = new AMap.Geocoder();
+            
+            // 创建地理位置对象
+            const geolocation = new AMap.Geolocation({
+                enableHighAccuracy: true,
+                timeout: 10000,
+                buttonPosition: 'RB',
+                buttonOffset: new AMap.Pixel(10, 10)
+            });
+            
+            // 添加控件到地图
+            map.addControl(geolocation);
+            
+            // 安全的事件监听
+            if (geolocation && typeof geolocation.on === 'function') {
+                // 定位成功事件
+                geolocation.on('complete', function(data) {
+                    console.log("定位成功:", data);
+                    if (data.position) {
+                        const position = [data.position.lng, data.position.lat];
+                        marker.setPosition(position);
+                        map.setCenter(position);
+                        
+                        // 更新位置文字
+                        updateLocationText(geocoder, position);
+                    }
+                });
+                
+                // 定位失败事件
+                geolocation.on('error', function(data) {
+                    console.log("定位失败:", data);
+                    updateLocationText(geocoder, defaultPosition, "湖北省武汉市");
+                });
+            } else {
+                console.warn("geolocation对象未正确初始化");
+                updateLocationText(geocoder, defaultPosition, "湖北省武汉市");
+            }
+            
+            // 开始定位
+            geolocation.getCurrentPosition();
+        });
+        
+        // 添加缩放控件
+        const toolBar = new AMap.ToolBar();
+        const scale = new AMap.Scale();
+        map.addControl(toolBar);
+        map.addControl(scale);
+
+    } catch (error) {
+        console.error('地图初始化失败:', error);
+        // 显示默认位置
+        document.getElementById('location-text').textContent = "湖北省武汉市";
+    }
+});
+
+// 更新位置文本的函数
+function updateLocationText(geocoder, position, fallback = "未知位置") {
+    geocoder.getAddress(position, function(status, result) {
+        const locationText = document.getElementById('location-text');
+        if (!locationText) return;
+        
+        if (status === 'complete' && result.regeocode) {
+            locationText.textContent = result.regeocode.formattedAddress || 
+                                     result.regeocode.addressComponent.city + 
+                                     result.regeocode.addressComponent.district;
+        } else {
+            locationText.textContent = fallback;
+        }
+    });
+}
+</script>
+    
+<style>
+    .custom-marker {
+        font-size: 36px;
+        color: #e74c3c;
+        text-shadow: 0 0 15px rgba(231, 76, 60, 0.3);
+        animation: markerPulse 1.5s infinite;
+    }
+    
+    @keyframes markerPulse {
+        0% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-5px) scale(1.2); }
+        100% { transform: translateY(0) scale(1); }
+    }
+
+
+</style>
+<script>
+    // 创建装饰星星
+    document.addEventListener('DOMContentLoaded', function() {
+        const card = document.querySelector('.specialty-card');
+        if (!card) return;
+        
+        for (let i = 0; i < 15; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            
+            // 随机位置
+            const posX = Math.random() * 100;
+            const posY = Math.random() * 100;
+            star.style.left = `${posX}%`;
+            star.style.top = `${posY}%`;
+            
+            // 随机大小
+            const size = Math.random() * 2 + 1;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            
+            // 随机动画延迟
+            const delay = Math.random() * 3;
+            star.style.animationDelay = `${delay}s`;
+            
+            card.appendChild(star);
+        }
+    });
+</script>
+<script>
+    // 添加时钟功能
+    function updateClock() {
+        const now = new Date();
+        
+        // 格式化时间 HH:MM:SS
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        
+        // 格式化日期 YYYY年MM月DD日
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        
+        // 更新显示
+        document.getElementById('current-time').textContent = `${hours} ${minutes} ${seconds}`;
+        document.getElementById('current-date').textContent = `${year}年${month}月${day}日`;
+    }
+    
+    // 初始化并每秒更新时钟
+    document.addEventListener('DOMContentLoaded', function() {
+        updateClock();
+        setInterval(updateClock, 1000);
+    });
+</script>
+{% endblock %}
