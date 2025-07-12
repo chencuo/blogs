@@ -68,9 +68,20 @@
 ​​数据库​​：SQLite（开发环境默认）或MySQL（生产环境需提前创建数据库）
 
 
+#### 2. 您如何使用本项目？
 
+​​通过 git clone 克隆仓库​​
 
-#### 1. 环境准备  
+在任意目录下打开终端（Windows 用 CMD 或 PowerShell，macOS/Linux 用终端），执行以下命令克隆项目：
+```bash
+# 克隆项目到本地（替换为你想存储的路径，例如 ~/Projects/blogs 或 D:\Projects\blogs）
+git clone https://github.com/chencuo/blogs.git
+​​说明​​：
+若提示 Permission denied（权限拒绝），可能是网络问题（如代理未配置），可尝试切换网络或使用 SSH 地址克隆（需提前配置 GitHub SSH 密钥）。
+若克隆速度慢，可使用国内镜像加速（如 https://github.com.cnpmjs.org/chencuo/blogs.git）。
+```
+
+#### 2. 环境准备  
 ```bash
 # ------------------------------
 # 方式一：使用 Anaconda（推荐）
